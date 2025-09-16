@@ -30,6 +30,15 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
+  // Back-relations for Money Tracker domain
+  profile               Profile?
+  transactions          Transaction[]
+  savingsGoals          SavingsGoal[]
+  projects              Project[]
+  projectExpenses       ProjectExpense[]
+  projectRevenues       ProjectRevenue[]
+  savingsContributions  SavingsContribution[]
+
   @@unique([email])
   @@map("user")
 }
@@ -110,4 +119,165 @@ model Media {
   size      Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+
+// ---------------------------
+// Money Tracker (MongoDB) Models
+// ---------------------------
+
+enum TransactionType {
+  income
+  expense
+}
+
+enum RevenueStatus {
+  pending
+  received
+  overdue
+}
+
+enum Currency {
+  VND
+  USD
+}
+
+model Profile {
+  // 1:1 with User, primary key equals User.id
+  id         String   @id @map("_id")
+  fullName   String
+  email      String
+  phone      String?
+  location   String?
+  occupation String?
+  birthDate  DateTime?
+  avatarUrl  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // relation to User by same id (User.id is String)
+  user User @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Transaction {
+  id            String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type          TransactionType
+  amount        BigInt
+  category      String
+  description   String
+  paymentMethod String
+  location      String?
+  tags          String[]
+  projectId     String?         @db.ObjectId
+  project       Project?        @relation(fields: [projectId], references: [id])
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([type])
+  @@index([category])
+  @@map("transactions")
+}
+
+model SavingsGoal {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title         String
+  targetAmount  BigInt
+  currentAmount BigInt   @default(0)
+  deadline      DateTime
+  category      String
+  isCompleted   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Back-relation
+  contributions SavingsContribution[]
+
+  @@index([userId])
+  @@index([deadline])
+  @@map("savings_goals")
+}
+
+model Project {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  description   String
+  budget        BigInt
+  totalExpenses BigInt   @default(0)
+  totalRevenue  BigInt   @default(0)
+  status        String
+  startDate     DateTime
+  endDate       DateTime?
+  category      String
+  currency      Currency @default(VND)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Back-relations
+  transactions  Transaction[]
+  expenses      ProjectExpense[]
+  revenues      ProjectRevenue[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("projects")
+}
+
+model ProjectExpense {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  projectId   String   @db.ObjectId
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount      BigInt
+  description String
+  category    String
+  date        DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([projectId])
+  @@map("project_expenses")
+}
+
+model ProjectRevenue {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  projectId     String        @db.ObjectId
+  project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount        BigInt
+  description   String
+  source        String
+  status        RevenueStatus
+  paidAmount    BigInt        @default(0)
+  invoiceNumber String?
+  dueDate       DateTime?
+  date          DateTime
+  createdAt     DateTime      @default(now())
+
+  @@index([projectId])
+  @@map("project_revenues")
+}
+
+model SavingsContribution {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  goalId      String       @db.ObjectId
+  goal        SavingsGoal  @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount      BigInt
+  description String?
+  createdAt   DateTime     @default(now())
+
+  @@index([goalId])
+  @@map("savings_contributions")
 }
