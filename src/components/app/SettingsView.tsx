@@ -1,65 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { User, Bell, Shield, HelpCircle, LogOut, Download, Upload, Smartphone, Edit3, Camera, Moon, Sun } from 'lucide-react';
-import { ProfileSetupModal, UserProfile } from './ProfileSetupModal';
+import { ProfileSetupModal } from './ProfileSetupModal';
+import { useAppStore } from '@/stores/app';
+import { useTransactions } from '@/contexts/TransactionContext';
+import { useSavingsGoals } from '@/contexts/SavingsGoalContext';
 
 export function SettingsView() {
-  const [notifications, setNotifications] = useState(true);
-  const [biometric, setBiometric] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const profile = useAppStore(s => s.profile);
+  const settings = useAppStore(s => s.settings);
+  const updateSettings = useAppStore(s => s.updateSettings);
+  const { transactions } = useTransactions();
+  const { goals } = useSavingsGoals();
 
-  useEffect(() => {
-    // Load user profile from localStorage
-    const savedProfile = localStorage.getItem('vietnamese-money-tracker-profile');
-    if (savedProfile) {
-      setUserProfile(JSON.parse(savedProfile));
-    }
-
-    // Load other settings
-    const savedSettings = localStorage.getItem('vietnamese-money-tracker-settings');
-    if (savedSettings) {
-      const settings = JSON.parse(savedSettings);
-      setNotifications(settings.notifications ?? true);
-      setBiometric(settings.biometric ?? false);
-      setDarkMode(settings.darkMode ?? false);
-    }
-  }, []);
-
-  useEffect(() => {
-    // Save settings to localStorage
-    const settings = {
-      notifications,
-      biometric,
-      darkMode,
-    };
-    localStorage.setItem('vietnamese-money-tracker-settings', JSON.stringify(settings));
-  }, [notifications, biometric, darkMode]);
-
-  const handleProfileUpdate = () => {
-    // Reload profile after update
-    const savedProfile = localStorage.getItem('vietnamese-money-tracker-profile');
-    if (savedProfile) {
-      setUserProfile(JSON.parse(savedProfile));
-    }
-  };
 
   const exportData = () => {
-    const transactions = localStorage.getItem('vietnamese-money-tracker-transactions');
-    const goals = localStorage.getItem('vietnamese-money-tracker-goals');
-    const profile = localStorage.getItem('vietnamese-money-tracker-profile');
-    const settings = localStorage.getItem('vietnamese-money-tracker-settings');
-
-    const exportData = {
-      transactions: transactions ? JSON.parse(transactions) : [],
-      goals: goals ? JSON.parse(goals) : [],
-      profile: profile ? JSON.parse(profile) : null,
-      settings: settings ? JSON.parse(settings) : {},
+    const payload = {
+      transactions,
+      goals,
+      profile,
+      settings,
       exportDate: new Date().toISOString(),
-      version: '1.0.0'
+      version: '1.0.0',
     };
 
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -81,22 +46,15 @@ export function SettingsView() {
         reader.onload = (e) => {
           try {
             const data = JSON.parse(e.target?.result as string);
-            
-            if (data.transactions) {
-              localStorage.setItem('vietnamese-money-tracker-transactions', JSON.stringify(data.transactions));
-            }
-            if (data.goals) {
-              localStorage.setItem('vietnamese-money-tracker-goals', JSON.stringify(data.goals));
-            }
+
             if (data.profile) {
-              localStorage.setItem('vietnamese-money-tracker-profile', JSON.stringify(data.profile));
-              setUserProfile(data.profile);
+              useAppStore.getState().setProfile(data.profile);
             }
             if (data.settings) {
-              localStorage.setItem('vietnamese-money-tracker-settings', JSON.stringify(data.settings));
+              useAppStore.getState().updateSettings(data.settings);
             }
-            
-            alert('Dữ liệu đã được nhập thành công! Vui lòng tải lại trang.');
+
+            alert('Dữ liệu đã được nhập thành công!');
           } catch (error) {
             alert('Lỗi: File không hợp lệ');
           }
@@ -127,25 +85,25 @@ export function SettingsView() {
               <Edit3 className="w-4 h-4" />
             </button>
           </div>
-          
-          {userProfile ? (
+
+          {profile ? (
             <div className="flex items-center space-x-4">
               <div className="w-16 h-16 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center relative">
                 <span className="text-white text-xl font-bold">
-                  {userProfile.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                  {profile.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                 </span>
                 <button className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
                   <Camera className="w-3 h-3 text-white" />
                 </button>
               </div>
               <div className="flex-1">
-                <h4 className="font-semibold text-gray-800">{userProfile.fullName}</h4>
-                <p className="text-gray-600 text-sm">{userProfile.email}</p>
-                {userProfile.occupation && (
-                  <p className="text-gray-500 text-sm">{userProfile.occupation}</p>
+                <h4 className="font-semibold text-gray-800">{profile.fullName}</h4>
+                <p className="text-gray-600 text-sm">{profile.email}</p>
+                {profile.occupation && (
+                  <p className="text-gray-500 text-sm">{profile.occupation}</p>
                 )}
-                {userProfile.location && (
-                  <p className="text-gray-500 text-sm">📍 {userProfile.location}</p>
+                {profile.location && (
+                  <p className="text-gray-500 text-sm">📍 {profile.location}</p>
                 )}
               </div>
             </div>
@@ -178,13 +136,13 @@ export function SettingsView() {
                 </div>
               </div>
               <button
-                onClick={() => setNotifications(!notifications)}
+                onClick={() => updateSettings({ notifications: !settings.notifications })}
                 className={`w-12 h-6 rounded-full transition-colors ${
-                  notifications ? 'bg-red-600' : 'bg-gray-300'
+                  settings.notifications ? 'bg-red-600' : 'bg-gray-300'
                 }`}
               >
                 <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                  notifications ? 'transform translate-x-6' : ''
+                  settings.notifications ? 'transform translate-x-6' : ''
                 }`} />
               </button>
             </div>
@@ -198,33 +156,33 @@ export function SettingsView() {
                 </div>
               </div>
               <button
-                onClick={() => setBiometric(!biometric)}
+                onClick={() => updateSettings({ biometric: !settings.biometric })}
                 className={`w-12 h-6 rounded-full transition-colors ${
-                  biometric ? 'bg-red-600' : 'bg-gray-300'
+                  settings.biometric ? 'bg-red-600' : 'bg-gray-300'
                 }`}
               >
                 <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                  biometric ? 'transform translate-x-6' : ''
+                  settings.biometric ? 'transform translate-x-6' : ''
                 }`} />
               </button>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                {darkMode ? <Moon className="w-5 h-5 text-gray-600" /> : <Sun className="w-5 h-5 text-gray-600" />}
+                {settings.darkMode ? <Moon className="w-5 h-5 text-gray-600" /> : <Sun className="w-5 h-5 text-gray-600" />}
                 <div>
                   <span className="text-gray-800 font-medium">Chế độ tối</span>
                   <p className="text-xs text-gray-500">Giao diện tối cho ban đêm</p>
                 </div>
               </div>
               <button
-                onClick={() => setDarkMode(!darkMode)}
+                onClick={() => updateSettings({ darkMode: !settings.darkMode })}
                 className={`w-12 h-6 rounded-full transition-colors ${
-                  darkMode ? 'bg-red-600' : 'bg-gray-300'
+                  settings.darkMode ? 'bg-red-600' : 'bg-gray-300'
                 }`}
               >
                 <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                  darkMode ? 'transform translate-x-6' : ''
+                  settings.darkMode ? 'transform translate-x-6' : ''
                 }`} />
               </button>
             </div>
@@ -237,7 +195,7 @@ export function SettingsView() {
         <div className="bg-white rounded-xl p-4 shadow-sm border">
           <h3 className="font-semibold text-gray-800 mb-4">Quản lý dữ liệu</h3>
           <div className="space-y-3">
-            <button 
+            <button
               onClick={exportData}
               className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors"
             >
@@ -247,8 +205,8 @@ export function SettingsView() {
                 <p className="text-xs text-gray-500">Tải về file backup toàn bộ dữ liệu</p>
               </div>
             </button>
-            
-            <button 
+
+            <button
               onClick={importData}
               className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors"
             >
@@ -272,7 +230,7 @@ export function SettingsView() {
                 <p className="text-xs text-gray-500">Cập nhật mật khẩu bảo mật</p>
               </div>
             </button>
-            
+
             <button className="w-full flex items-center space-x-3 p-3 text-left hover:bg-red-50 rounded-lg transition-colors text-red-600">
               <LogOut className="w-5 h-5" />
               <div>
@@ -294,7 +252,7 @@ export function SettingsView() {
                 <p className="text-xs text-gray-500">Hướng dẫn sử dụng và FAQ</p>
               </div>
             </button>
-            
+
             <button className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors">
               <Shield className="w-5 h-5 text-gray-600" />
               <div>
@@ -329,19 +287,19 @@ export function SettingsView() {
         </div>
 
         {/* Statistics */}
-        {userProfile && (
+        {profile && (
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-200">
             <h3 className="font-semibold text-blue-800 mb-3">Thống kê sử dụng</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="text-center">
                 <div className="text-lg font-bold text-blue-700">
-                  {JSON.parse(localStorage.getItem('vietnamese-money-tracker-transactions') || '[]').length}
+                  {transactions.length}
                 </div>
                 <div className="text-blue-600">Giao dịch</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-bold text-blue-700">
-                  {JSON.parse(localStorage.getItem('vietnamese-money-tracker-goals') || '[]').length}
+                  {goals.length}
                 </div>
                 <div className="text-blue-600">Mục tiêu</div>
               </div>
@@ -358,14 +316,14 @@ export function SettingsView() {
         </div>
       </div>
 
-      <ProfileSetupModal
-        isOpen={showProfileModal}
-        onClose={() => {
-          setShowProfileModal(false);
-          handleProfileUpdate();
-        }}
-        currentProfile={userProfile || undefined}
-      />
+      {/*<ProfileSetupModal*/}
+      {/*  isOpen={showProfileModal}*/}
+      {/*  onClose={() => {*/}
+      {/*    setShowProfileModal(false);*/}
+      {/*    handleProfileUpdate();*/}
+      {/*  }}*/}
+      {/*  currentProfile={userProfile || undefined}*/}
+      {/*/>*/}
     </>
   );
 }

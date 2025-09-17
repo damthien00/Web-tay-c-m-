@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { useAuthStore } from '@/stores/auth';
 import { Project, ProjectExpense, ProjectRevenue } from '../types/Project';
 import { generateId } from '../utils/helpers';
 
@@ -31,11 +32,13 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [revenues, setRevenues] = useState<ProjectRevenue[]>([]);
 
   // Helpers to load from API
-  const uid = () => (typeof window !== 'undefined' ? (localStorage.getItem('userId') || 'demo-user') : 'demo-user');
+  const getUid = () => useAuthStore.getState().userId;
 
   const reloadProjects = async () => {
     try {
-      const res = await fetch(`/api/projects?userId=${encodeURIComponent(uid())}&per_page=100&sort=createdAt.desc`);
+      const uid = getUid();
+      if (!uid) { setProjects([]); return; }
+      const res = await fetch(`/api/projects?userId=${encodeURIComponent(uid)}&per_page=100&sort=createdAt.desc`);
       const json = await res.json();
       const items = Array.isArray(json?.data?.items) ? json.data.items : (Array.isArray(json?.data) ? json.data : []);
       if (Array.isArray(items)) {
@@ -63,7 +66,9 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
   const reloadExpenses = async () => {
     try {
-      const res = await fetch(`/api/project-expenses?userId=${encodeURIComponent(uid())}&per_page=200&sort=date.desc`);
+      const uid = getUid();
+      if (!uid) { setExpenses([]); return; }
+      const res = await fetch(`/api/project-expenses?userId=${encodeURIComponent(uid)}&per_page=200&sort=date.desc`);
       const json = await res.json();
       const items = Array.isArray(json?.data?.items) ? json.data.items : (Array.isArray(json?.data) ? json.data : []);
       if (Array.isArray(items)) {
@@ -85,7 +90,9 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
   const reloadRevenues = async () => {
     try {
-      const res = await fetch(`/api/project-revenues?userId=${encodeURIComponent(uid())}&per_page=200&sort=date.desc`);
+      const uid = getUid();
+      if (!uid) { setRevenues([]); return; }
+      const res = await fetch(`/api/project-revenues?userId=${encodeURIComponent(uid)}&per_page=200&sort=date.desc`);
       const json = await res.json();
       const items = Array.isArray(json?.data?.items) ? json.data.items : (Array.isArray(json?.data) ? json.data : []);
       if (Array.isArray(items)) {
@@ -135,11 +142,13 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     setProjects(prev => [temp, ...prev]);
 
     try {
+      const uid = getUid();
+      if (!uid) throw new Error('No userId available');
       const res = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: uid(),
+          userId: uid,
           name: project.name,
           description: project.description,
           budget: project.budget,
@@ -166,7 +175,9 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
     (async () => {
       try {
-        const payload: any = { userId: uid() };
+        const uid = getUid();
+        if (!uid) throw new Error('No userId available');
+        const payload: any = { userId: uid };
         if (updatedProject.name !== undefined) payload.name = updatedProject.name;
         if (updatedProject.description !== undefined) payload.description = updatedProject.description;
         if (updatedProject.budget !== undefined) payload.budget = updatedProject.budget;
@@ -199,7 +210,9 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
     (async () => {
       try {
-        const res = await fetch(`/api/projects/${encodeURIComponent(id)}?userId=${encodeURIComponent(uid())}`, { method: 'DELETE' });
+        const uid = getUid();
+        if (!uid) throw new Error('No userId available');
+        const res = await fetch(`/api/projects/${encodeURIComponent(id)}?userId=${encodeURIComponent(uid)}`, { method: 'DELETE' });
         const json = await res.json();
         if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to delete project');
         await reloadAll();
@@ -219,11 +232,13 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
     (async () => {
       try {
+        const uid = getUid();
+        if (!uid) throw new Error('No userId available');
         const res = await fetch('/api/project-expenses', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            userId: uid(),
+            userId: uid,
             projectId: expense.projectId,
             amount: expense.amount,
             description: expense.description,
@@ -260,7 +275,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            userId: uid(),
+            userId: uid,
             projectId: revenue.projectId,
             amount: revenue.amount,
             description: revenue.description,

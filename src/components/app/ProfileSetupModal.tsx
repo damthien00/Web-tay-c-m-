@@ -4,6 +4,7 @@ import { useFormValidation } from '../../hooks/useFormValidation';
 import { FormField } from './FormField';
 import { LoadingButton } from './LoadingButton';
 import { SuccessNotification } from './SuccessNotification';
+import { useAppStore } from '@/stores/app';
 
 interface ProfileSetupModalProps {
   isOpen: boolean;
@@ -112,8 +113,15 @@ export function ProfileSetupModal({ isOpen, onClose, currentProfile }: ProfileSe
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1200));
 
-    // Save to localStorage
-    localStorage.setItem('vietnamese-money-tracker-profile', JSON.stringify(formValues));
+    // Save to zustand store
+    useAppStore.getState().setProfile({
+      fullName: formValues.fullName,
+      email: formValues.email,
+      phone: formValues.phone,
+      location: formValues.location,
+      occupation: formValues.occupation,
+      birthDate: formValues.birthDate,
+    });
 
     setShowSuccess(true);
     setTimeout(() => {
