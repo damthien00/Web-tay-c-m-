@@ -79,21 +79,23 @@ export function SavingsGoalModal({ isOpen, onClose }: SavingsGoalModalProps) {
   const onSubmit = async (formValues: typeof initialValues) => {
     const parsedAmount = parseVND(formValues.targetAmount);
 
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      await addGoal({
+        title: formValues.title.trim(),
+        targetAmount: parsedAmount,
+        deadline: formValues.deadline,
+        category: formValues.category as any,
+      });
 
-    addGoal({
-      title: formValues.title.trim(),
-      targetAmount: parsedAmount,
-      deadline: formValues.deadline,
-      category: formValues.category as any,
-    });
-
-    setShowSuccess(true);
-    setTimeout(() => {
-      onClose();
-      setShowSuccess(false);
-    }, 2000);
+      setShowSuccess(true);
+      setTimeout(() => {
+        onClose();
+        setShowSuccess(false);
+      }, 1200);
+    } catch (e) {
+      console.error(e);
+      alert('Có lỗi xảy ra khi tạo mục tiêu tiết kiệm. Vui lòng thử lại.');
+    }
   };
 
   const handleClose = () => {

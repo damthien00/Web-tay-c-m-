@@ -4,7 +4,7 @@ import { generateId } from '../utils/helpers';
 
 interface SavingsGoalContextType {
   goals: SavingsGoal[];
-  addGoal: (goal: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'isCompleted'>) => void;
+  addGoal: (goal: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'isCompleted'>) => Promise<void>;
   updateGoal: (id: string, goal: Partial<SavingsGoal>) => void;
   deleteGoal: (id: string) => void;
   addToGoal: (id: string, amount: number) => void;
@@ -18,51 +18,95 @@ const SavingsGoalContext = createContext<SavingsGoalContextType | undefined>(und
 export function SavingsGoalProvider({ children }: { children: ReactNode }) {
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
 
-  useEffect(() => {
-    const saved = localStorage.getItem('vietnamese-money-tracker-goals');
-    if (saved && JSON.parse(saved).length > 0) {
-      setGoals(JSON.parse(saved));
-    } else {
-      // Add sample goals
-      const sampleGoals: SavingsGoal[] = [
-        {
-          id: generateId(),
-          title: 'Quỹ khẩn cấp',
-          targetAmount: 50000000,
-          currentAmount: 15000000,
-          deadline: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
-          category: 'emergency',
-          createdAt: new Date().toISOString(),
-          isCompleted: false,
-        },
-        {
-          id: generateId(),
-          title: 'Du lịch Đà Lạt',
-          targetAmount: 10000000,
-          currentAmount: 7500000,
-          deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
-          category: 'vacation',
-          createdAt: new Date().toISOString(),
-          isCompleted: false,
-        }
-      ];
-      setGoals(sampleGoals);
+  // Helper to fetch and set goals from API
+  const reloadGoals = async () => {
+    try {
+      const uid = typeof window !== 'undefined' ? (localStorage.getItem('userId') || 'demo-user') : 'demo-user';
+      const res = await fetch(`/api/savings-goals?userId=${encodeURIComponent(uid)}&per_page=100`);
+      const json = await res.json();
+      const items = Array.isArray(json?.data?.items) ? json.data.items : (Array.isArray(json?.data) ? json.data : []);
+      if (Array.isArray(items)) {
+        const mapped: SavingsGoal[] = items.map((g: any) => ({
+          id: g.id,
+          title: g.title,
+          targetAmount: Number(g.targetAmount),
+          currentAmount: Number(g.currentAmount ?? 0),
+          deadline: typeof g.deadline === 'string' ? g.deadline : new Date(g.deadline).toISOString(),
+          category: g.category,
+          createdAt: typeof g.createdAt === 'string' ? g.createdAt : new Date(g.createdAt).toISOString(),
+          isCompleted: Boolean(g.isCompleted),
+        }));
+        setGoals(mapped);
+      }
+    } catch (e) {
+      console.error(e);
     }
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    // Hydrate from cache first for fast initial render
+    try {
+      const saved = localStorage.getItem('vietnamese-money-tracker-goals');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setGoals(parsed);
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    // Then fetch real goals from API
+    (async () => { if (isMounted) await reloadGoals(); })();
+
+    return () => { isMounted = false };
   }, []);
 
   useEffect(() => {
     localStorage.setItem('vietnamese-money-tracker-goals', JSON.stringify(goals));
   }, [goals]);
 
-  const addGoal = (goal: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'isCompleted'>) => {
-    const newGoal: SavingsGoal = {
-      ...goal,
-      id: generateId(),
-      createdAt: new Date().toISOString(),
-      currentAmount: 0,
-      isCompleted: false,
-    };
-    setGoals(prev => [newGoal, ...prev]);
+  const addGoal = async (goal: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'isCompleted'>) => {
+    try {
+      const uid = typeof window !== 'undefined' ? (localStorage.getItem('userId') || 'demo-user') : 'demo-user';
+
+      // Optimistic insert
+      const temp: SavingsGoal = {
+        ...goal,
+        id: `temp-${generateId()}`,
+        createdAt: new Date().toISOString(),
+        currentAmount: 0,
+        isCompleted: false,
+      };
+      setGoals(prev => [temp, ...prev]);
+
+      const res = await fetch('/api/savings-goals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: uid,
+          title: goal.title,
+          targetAmount: goal.targetAmount,
+          deadline: goal.deadline,
+          category: goal.category,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || json?.error) {
+        throw new Error(json?.error || 'Failed to create savings goal');
+      }
+
+      // Refresh from server to replace optimistic item
+      await reloadGoals();
+    } catch (e) {
+      console.error(e);
+      // Re-fetch to revert optimistic change on failure
+      await reloadGoals();
+      throw e;
+    }
   };
 
   const updateGoal = (id: string, updatedGoal: Partial<SavingsGoal>) => {
