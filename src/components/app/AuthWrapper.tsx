@@ -1,3 +1,4 @@
+"use client"
 import React, { useState } from 'react';
 import { SignInView } from './SignInView';
 import { SignUpView } from './SignUpView';
@@ -8,11 +9,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { signIn, signUp } from '@/lib/auth-client';
 import { requestPasswordResetAction, resetPasswordAction } from '@/actions/auth/password';
 
-interface AuthWrapperProps {
-  onAuthenticated: () => void;
-}
-
-export function AuthWrapper({ onAuthenticated }: AuthWrapperProps) {
+export function AuthWrapper() {
   const [currentView, setCurrentView] = useState<'signin' | 'signup' | 'forgot' | 'reset'>('signin');
 
   const pathname = usePathname();
@@ -51,7 +48,8 @@ export function AuthWrapper({ onAuthenticated }: AuthWrapperProps) {
     } as const;
 
     if (pathname && pathname.startsWith('/auth')) {
-      router.push(map[v]);
+      // router.push(map[v]);
+	    router.refresh()
     } else {
       setCurrentView(v);
     }
@@ -62,9 +60,8 @@ export function AuthWrapper({ onAuthenticated }: AuthWrapperProps) {
     if (response?.error) {
       throw new Error(response.error.message || 'Đăng nhập thất bại');
     }
-    onAuthenticated?.();
-    // Follow existing auth pages behavior
-    router.push('/admin');
+		router.refresh()
+    // router.push('/admin');
   };
 
   const handleSignUp = async (email: string, password: string, fullName: string) => {
@@ -84,8 +81,8 @@ export function AuthWrapper({ onAuthenticated }: AuthWrapperProps) {
         avatar: undefined,
       });
     } catch {}
-    onAuthenticated?.();
-    router.push('/admin');
+	  router.refresh()
+    // router.push('/admin');
   };
 
   const handleForgotPassword = async (email: string) => {
@@ -101,7 +98,8 @@ export function AuthWrapper({ onAuthenticated }: AuthWrapperProps) {
       throw new Error(result.error || 'Không thể đặt lại mật khẩu');
     }
     // After successful reset, send user back to sign-in
-    router.push('/auth/sign-in');
+    // router.push('/auth/sign-in');
+	  router.refresh()
   };
 
   switch (view) {

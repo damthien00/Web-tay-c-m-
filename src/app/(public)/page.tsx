@@ -1,22 +1,18 @@
-"use client"
-import HomePage from "@/app/(public)/home-page";
-import PublicLayout from "@/app/(public)/public-layout";
 import {AuthWrapper} from "@/components/app/AuthWrapper";
-import { useSession } from "@/lib/auth-client";
+import PermissionGate from "@/components/admin/auth/PermissionGate";
+import HomePageClient from "@/app/(public)/home-page-client";
 
 export default () => {
-	const session = useSession();
-	const isAuthenticated = !!session.data?.user;
-
 	return (
 		<>
-			{isAuthenticated ? (
-				<PublicLayout>
-					<HomePage/>
-				</PublicLayout>
-			) : (
-				<AuthWrapper onAuthenticated={() => {}} />
-			)}
+			<PermissionGate
+				anyOf={["ADMIN", "USER"]}
+				fallback={
+					<AuthWrapper />
+				}
+			>
+				<HomePageClient/>
+			</PermissionGate>
 		</>
 	)
 }
