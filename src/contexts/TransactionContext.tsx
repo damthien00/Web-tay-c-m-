@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { Transaction, TransactionCategory, PaymentMethod } from '../types/Transaction';
+import { Transaction, TransactionCategory } from '../types/Transaction';
 import { generateId } from '../utils/helpers';
 
 interface TransactionContextType {
@@ -18,62 +18,51 @@ const TransactionContext = createContext<TransactionContextType | undefined>(und
 export function TransactionProvider({ children }: { children: ReactNode }) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-  // Load transactions from localStorage on mount
+  // Hydrate from localStorage then fetch recent transactions from API
   useEffect(() => {
-    const saved = localStorage.getItem('vietnamese-money-tracker-transactions');
-    if (saved && JSON.parse(saved).length > 0) {
-      setTransactions(JSON.parse(saved));
-    } else {
-      // Add sample data for demonstration
-      const sampleTransactions: Transaction[] = [
-        {
-          id: generateId(),
-          type: 'expense',
-          amount: 35000,
-          category: 'an-uong-duong-pho',
-          description: 'Phở bò tái',
-          paymentMethod: 'tien-mat',
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: generateId(),
-          type: 'income',
-          amount: 15000000,
-          category: 'luong-chinh',
-          description: 'Lương tháng 1',
-          paymentMethod: 'chuyen-khoan',
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: generateId(),
-          type: 'expense',
-          amount: 150000,
-          category: 'chi-phi-xe-may',
-          description: 'Xăng xe máy',
-          paymentMethod: 'tien-mat',
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: generateId(),
-          type: 'expense',
-          amount: 2500000,
-          category: 'gui-tien-gia-dinh',
-          description: 'Gửi tiền về quê',
-          paymentMethod: 'chuyen-khoan',
-          createdAt: new Date(Date.now() - 86400000).toISOString(), // Yesterday
-        },
-        {
-          id: generateId(),
-          type: 'expense',
-          amount: 80000,
-          category: 'an-uong-duong-pho',
-          description: 'Cơm tấm sườn',
-          paymentMethod: 'momo',
-          createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-        },
-      ];
-      setTransactions(sampleTransactions);
+    let isMounted = true;
+
+    // 1) Load cached transactions (if any)
+    try {
+      const saved = localStorage.getItem('vietnamese-money-tracker-transactions');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setTransactions(parsed);
+        }
+      }
+    } catch {
+      // ignore parse errors
     }
+
+    // 2) Fetch real recent transactions
+    async function load() {
+      try {
+        const uid = typeof window !== 'undefined' ? (localStorage.getItem('userId') || 'demo-user') : 'demo-user';
+        const res = await fetch(`/api/transactions/recent?userId=${encodeURIComponent(uid)}&limit=20`);
+        const json = await res.json();
+        if (!isMounted) return;
+        if (Array.isArray(json?.data)) {
+          const mapped: Transaction[] = json.data.map((t: any) => ({
+            id: t.id,
+            type: t.type,
+            amount: Number(t.amount),
+            category: t.category,
+            description: t.description || '',
+            paymentMethod: t.paymentMethod,
+            createdAt: typeof t.createdAt === 'string' ? t.createdAt : new Date(t.createdAt).toISOString(),
+            location: t.location || undefined,
+            tags: t.tags || [],
+          }));
+          setTransactions(mapped);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    load();
+    return () => { isMounted = false };
   }, []);
 
   // Save transactions to localStorage whenever they change
@@ -102,8 +91,8 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
   const getBalance = () => {
     return transactions.reduce((acc, transaction) => {
-      return transaction.type === 'income' 
-        ? acc + transaction.amount 
+      return transaction.type === 'income'
+        ? acc + transaction.amount
         : acc - transaction.amount;
     }, 0);
   };

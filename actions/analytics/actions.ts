@@ -45,6 +45,3 @@ export async function getTotalsByDateRange(inputs: TGetTotalsByDateRangeSchema):
     return { data: null, error: getErrorMessage(e) };
   }
 }
-
-// Optional convenience re-export so consumers can import all analytics from one place
-export { recentTransactions } from "@/actions/transactions/actions";

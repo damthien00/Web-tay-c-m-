@@ -1,35 +1,33 @@
 "use client"
 
-import React from 'react';
-import { useTransactions } from '../../contexts/TransactionContext';
+import React, { useState } from 'react';
 import { formatVND, formatCurrency } from '../../utils/currency';
 import { getVietnameseGreeting } from '../../utils/helpers';
 import { TrendingUp, TrendingDown, Wallet, Eye, EyeOff } from 'lucide-react';
 import { QuickActions } from './QuickActions';
 import { RecentTransactions } from './RecentTransactions';
 import { useSavingsGoals } from '../../contexts/SavingsGoalContext';
-import { useState } from 'react';
+import { useProjects } from '../../contexts/ProjectContext';
+import { useTransactions } from '../../contexts/TransactionContext';
 
 interface DashboardViewProps {
   onNavigate: (view: 'savings' | 'trends' | 'reports' | 'projects') => void;
 }
 
 export function DashboardView({ onNavigate }: DashboardViewProps) {
-  const { getBalance, getIncomeTotal, getExpenseTotal, transactions } =
-    useTransactions();
   const { getTotalSavings, goals } = useSavingsGoals();
-  const { getTotalPortfolioValue, getProfitableProjects, getLosingProjects } =
-    useProjects();
+  const { getTotalPortfolioValue, getProfitableProjects, getLosingProjects } = useProjects();
+  const { transactions, getBalance, getIncomeTotal, getExpenseTotal } = useTransactions();
   const [showBalance, setShowBalance] = useState(true);
 
   const balance = getBalance();
   const income = getIncomeTotal();
   const expense = getExpenseTotal();
+
   const totalSavings = getTotalSavings();
   const portfolioValue = getTotalPortfolioValue();
   const profitableProjects = getProfitableProjects();
   const losingProjects = getLosingProjects();
-  const recentTransactions = transactions.slice(0, 5);
 
   return (
     <div className="p-4 space-y-6">
@@ -202,7 +200,7 @@ export function DashboardView({ onNavigate }: DashboardViewProps) {
 
       {/* Recent Transactions */}
       <RecentTransactions
-        transactions={recentTransactions}
+        transactions={transactions.slice(0, 5)}
         showBalance={showBalance}
       />
     </div>
