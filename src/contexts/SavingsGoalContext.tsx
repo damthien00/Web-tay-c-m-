@@ -45,29 +45,10 @@ export function SavingsGoalProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let isMounted = true;
-
-    // Hydrate from cache first for fast initial render
-    try {
-      const saved = localStorage.getItem('vietnamese-money-tracker-goals');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setGoals(parsed);
-        }
-      }
-    } catch {
-      // ignore
-    }
-
-    // Then fetch real goals from API
     (async () => { if (isMounted) await reloadGoals(); })();
-
     return () => { isMounted = false };
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('vietnamese-money-tracker-goals', JSON.stringify(goals));
-  }, [goals]);
 
   const addGoal = async (goal: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'isCompleted'>) => {
     try {

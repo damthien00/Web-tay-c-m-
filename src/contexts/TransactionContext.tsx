@@ -25,6 +25,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       const res = await fetch(`/api/transactions/recent?userId=${encodeURIComponent(uid)}&limit=20`);
       const json = await res.json();
       if (Array.isArray(json?.data)) {
+				console.log(json.data)
         const mapped: Transaction[] = json.data.map((t: any) => ({
           id: t.id,
           type: t.type,
@@ -43,33 +44,12 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Hydrate from localStorage then fetch recent transactions from API
+  // Fetch recent transactions from API on mount
   useEffect(() => {
     let isMounted = true;
-
-    // 1) Load cached transactions (if any)
-    try {
-      const saved = localStorage.getItem('vietnamese-money-tracker-transactions');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setTransactions(parsed);
-        }
-      }
-    } catch {
-      // ignore parse errors
-    }
-
-    // 2) Fetch real recent transactions
     (async () => { if (isMounted) await reloadRecentTransactions(); })();
-
     return () => { isMounted = false };
   }, []);
-
-  // Save transactions to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('vietnamese-money-tracker-transactions', JSON.stringify(transactions));
-  }, [transactions]);
 
   const addTransaction = async (transaction: Omit<Transaction, 'id' | 'createdAt'>) => {
     try {

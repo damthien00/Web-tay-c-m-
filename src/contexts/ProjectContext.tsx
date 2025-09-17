@@ -116,38 +116,10 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   // Initial hydration: cache → server
   useEffect(() => {
     let isMounted = true;
-    try {
-      const p = localStorage.getItem('vietnamese-money-tracker-projects');
-      if (p) {
-        const parsed = JSON.parse(p);
-        if (Array.isArray(parsed) && parsed.length > 0) setProjects(parsed);
-      }
-      const e = localStorage.getItem('vietnamese-money-tracker-project-expenses');
-      if (e) {
-        const parsed = JSON.parse(e);
-        if (Array.isArray(parsed) && parsed.length > 0) setExpenses(parsed);
-      }
-      const r = localStorage.getItem('vietnamese-money-tracker-project-revenues');
-      if (r) {
-        const parsed = JSON.parse(r);
-        if (Array.isArray(parsed) && parsed.length > 0) setRevenues(parsed);
-      }
-    } catch {}
-
     (async () => { if (isMounted) await reloadAll(); })();
     return () => { isMounted = false };
   }, []);
 
-  // Persist caches
-  useEffect(() => {
-    localStorage.setItem('vietnamese-money-tracker-projects', JSON.stringify(projects));
-  }, [projects]);
-  useEffect(() => {
-    localStorage.setItem('vietnamese-money-tracker-project-expenses', JSON.stringify(expenses));
-  }, [expenses]);
-  useEffect(() => {
-    localStorage.setItem('vietnamese-money-tracker-project-revenues', JSON.stringify(revenues));
-  }, [revenues]);
 
   // Mutations
   const addProject = async (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'totalExpenses' | 'totalRevenue'>) => {
