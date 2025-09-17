@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { useAuthStore } from '@/stores/auth';
+import { useSession } from '@/lib/auth-client';
 import { SavingsGoal } from '../types/SavingsGoal';
 import { generateId } from '../utils/helpers';
 
@@ -18,11 +18,12 @@ const SavingsGoalContext = createContext<SavingsGoalContextType | undefined>(und
 
 export function SavingsGoalProvider({ children }: { children: ReactNode }) {
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
+  const session = useSession();
 
   // Helper to fetch and set goals from API
   const reloadGoals = async () => {
     try {
-      const uid = useAuthStore.getState().userId;
+      const uid = session.data?.user?.id as string | undefined;
       if (!uid) { setGoals([]); return; }
       const res = await fetch(`/api/savings-goals?userId=${encodeURIComponent(uid)}&per_page=100`);
       const json = await res.json();
@@ -49,12 +50,12 @@ export function SavingsGoalProvider({ children }: { children: ReactNode }) {
     let isMounted = true;
     (async () => { if (isMounted) await reloadGoals(); })();
     return () => { isMounted = false };
-  }, []);
+  }, [session.data?.user?.id]);
 
 
   const addGoal = async (goal: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'isCompleted'>) => {
     try {
-      const uid = useAuthStore.getState().userId;
+      const uid = session.data?.user?.id as string | undefined;
       if (!uid) throw new Error('No userId available');
 
       // Optimistic insert
@@ -111,7 +112,7 @@ export function SavingsGoalProvider({ children }: { children: ReactNode }) {
     // Fire-and-forget API call to persist
     (async () => {
       try {
-        const uid = useAuthStore.getState().userId;
+        const uid = session.data?.user?.id as string | undefined;
         if (!uid) throw new Error('No userId available');
         const payload: any = { userId: uid };
         if (updatedGoal.title !== undefined) payload.title = updatedGoal.title;
@@ -142,7 +143,7 @@ export function SavingsGoalProvider({ children }: { children: ReactNode }) {
 
     (async () => {
       try {
-        const uid = useAuthStore.getState().userId;
+        const uid = session.data?.user?.id as string | undefined;
         if (!uid) throw new Error('No userId available');
         const res = await fetch(`/api/savings-goals/${encodeURIComponent(id)}?userId=${encodeURIComponent(uid)}`, {
           method: 'DELETE',
@@ -166,7 +167,7 @@ export function SavingsGoalProvider({ children }: { children: ReactNode }) {
 
     (async () => {
       try {
-        const uid = useAuthStore.getState().userId;
+        const uid = session.data?.user?.id as string | undefined;
         if (!uid) throw new Error('No userId available');
         const res = await fetch('/api/savings-contributions', {
           method: 'POST',

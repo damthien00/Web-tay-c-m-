@@ -3,7 +3,6 @@ import { SignInView } from './SignInView';
 import { SignUpView } from './SignUpView';
 import { ForgotPasswordView } from './ForgotPasswordView';
 import { ResetPasswordView } from './ResetPasswordView';
-import { useAuthStore } from '@/stores/auth';
 import { useAppStore } from '@/stores/app';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { signIn, signUp } from '@/lib/auth-client';
@@ -63,8 +62,6 @@ export function AuthWrapper({ onAuthenticated }: AuthWrapperProps) {
     if (response?.error) {
       throw new Error(response.error.message || 'Đăng nhập thất bại');
     }
-    // Optionally reflect auth in local store for the app demo state
-    try { useAuthStore.getState().signIn(email); } catch {}
     onAuthenticated?.();
     // Follow existing auth pages behavior
     router.push('/admin');

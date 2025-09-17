@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { useAuthStore } from '@/stores/auth';
+import { useSession } from '@/lib/auth-client';
 import { Transaction, TransactionCategory } from '../types/Transaction';
 
 interface TransactionContextType {
@@ -18,10 +18,11 @@ const TransactionContext = createContext<TransactionContextType | undefined>(und
 
 export function TransactionProvider({ children }: { children: ReactNode }) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const session = useSession();
 
   // Helper to fetch and set recent transactions
   const reloadRecentTransactions = async () => {
-      const uid = useAuthStore.getState().userId;
+      const uid = session.data?.user?.id as string | undefined;
       if (!uid) {
         // If no user, clear transactions for safety
         setTransactions([]);
@@ -50,16 +51,16 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Fetch recent transactions from API on mount
+  // Fetch recent transactions when session user changes
   useEffect(() => {
     let isMounted = true;
     (async () => { if (isMounted) await reloadRecentTransactions(); })();
     return () => { isMounted = false };
-  }, []);
+  }, [session.data?.user?.id]);
 
   const addTransaction = async (transaction: Omit<Transaction, 'id' | 'createdAt'>) => {
     try {
-      const uid = useAuthStore.getState().userId;
+      const uid = session.data?.user?.id as string | undefined;
       if (!uid) throw new Error('No userId available');
       // Optimistic UI: insert locally first
       setTransactions(prev => [
@@ -103,7 +104,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     setTransactions(prev => prev.map(t => (t.id === id ? { ...t, ...updatedTransaction } : t)));
 
     try {
-      const uid = useAuthStore.getState().userId;
+      const uid = session.data?.user?.id as string | undefined;
       if (!uid) throw new Error('No userId available');
       const payload: any = { userId: uid };
       if (updatedTransaction.type !== undefined) payload.type = updatedTransaction.type;
@@ -135,7 +136,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     setTransactions(prev => prev.filter(t => t.id !== id));
 
     try {
-      const uid = useAuthStore.getState().userId;
+      const uid = session.data?.user?.id as string | undefined;
       if (!uid) throw new Error('No userId available');
       const res = await fetch(`/api/transactions/${encodeURIComponent(id)}?userId=${encodeURIComponent(uid)}`, {
         method: 'DELETE',

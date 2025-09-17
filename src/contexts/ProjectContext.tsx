@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { useAuthStore } from '@/stores/auth';
+import { useSession } from '@/lib/auth-client';
 import { Project, ProjectExpense, ProjectRevenue } from '../types/Project';
 import { generateId } from '../utils/helpers';
 
@@ -30,9 +30,10 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [expenses, setExpenses] = useState<ProjectExpense[]>([]);
   const [revenues, setRevenues] = useState<ProjectRevenue[]>([]);
+  const session = useSession();
 
   // Helpers to load from API
-  const getUid = () => useAuthStore.getState().userId;
+  const getUid = () => session.data?.user?.id as string | undefined;
 
   const reloadProjects = async () => {
     try {
@@ -120,12 +121,12 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     await Promise.all([reloadProjects(), reloadExpenses(), reloadRevenues()]);
   };
 
-  // Initial hydration: cache → server
+  // Initial hydration and when auth user changes
   useEffect(() => {
     let isMounted = true;
     (async () => { if (isMounted) await reloadAll(); })();
     return () => { isMounted = false };
-  }, []);
+  }, [session.data?.user?.id]);
 
 
   // Mutations
@@ -271,6 +272,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
     (async () => {
       try {
+        const uid = getUid();
+        if (!uid) throw new Error('No userId available');
         const res = await fetch('/api/project-revenues', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
