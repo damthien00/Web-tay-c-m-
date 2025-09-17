@@ -135,7 +135,9 @@ export function TransactionView() {
                               <Edit3 className="w-4 h-4" />
                             </button>
                             <button
-                              onClick={() => deleteTransaction(transaction.id)}
+                              onClick={async () => {
+                                try { await deleteTransaction(transaction.id); } catch (e) { console.error(e); }
+                              }}
                               className="p-1 text-gray-400 hover:text-red-600 rounded transition-colors"
                             >
                               <Trash2 className="w-4 h-4" />

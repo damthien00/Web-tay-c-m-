@@ -110,11 +110,11 @@ export function SavingsGoalProvider({ children }: { children: ReactNode }) {
   };
 
   const updateGoal = (id: string, updatedGoal: Partial<SavingsGoal>) => {
+    // Optimistic update
     setGoals(prev =>
       prev.map(goal => {
         if (goal.id === id) {
           const updated = { ...goal, ...updatedGoal };
-          // Check if goal is completed
           if (updated.currentAmount >= updated.targetAmount) {
             updated.isCompleted = true;
           }
@@ -123,22 +123,81 @@ export function SavingsGoalProvider({ children }: { children: ReactNode }) {
         return goal;
       })
     );
+
+    // Fire-and-forget API call to persist
+    (async () => {
+      try {
+        const uid = typeof window !== 'undefined' ? (localStorage.getItem('userId') || 'demo-user') : 'demo-user';
+        const payload: any = { userId: uid };
+        if (updatedGoal.title !== undefined) payload.title = updatedGoal.title;
+        if (updatedGoal.targetAmount !== undefined) payload.targetAmount = updatedGoal.targetAmount;
+        if (updatedGoal.deadline !== undefined) payload.deadline = updatedGoal.deadline;
+        if (updatedGoal.category !== undefined) payload.category = updatedGoal.category;
+        if (updatedGoal.isCompleted !== undefined) payload.isCompleted = updatedGoal.isCompleted;
+
+        const res = await fetch(`/api/savings-goals/${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const json = await res.json();
+        if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to update savings goal');
+        await reloadGoals();
+      } catch (e) {
+        console.error(e);
+        await reloadGoals();
+      }
+    })();
   };
 
   const deleteGoal = (id: string) => {
+    // Optimistic remove
+    const prevGoals = goals;
     setGoals(prev => prev.filter(goal => goal.id !== id));
+
+    (async () => {
+      try {
+        const uid = typeof window !== 'undefined' ? (localStorage.getItem('userId') || 'demo-user') : 'demo-user';
+        const res = await fetch(`/api/savings-goals/${encodeURIComponent(id)}?userId=${encodeURIComponent(uid)}`, {
+          method: 'DELETE',
+        });
+        const json = await res.json();
+        if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to delete savings goal');
+        await reloadGoals();
+      } catch (e) {
+        console.error(e);
+        // Revert by reloading from server
+        await reloadGoals();
+      }
+    })();
   };
 
   const addToGoal = (id: string, amount: number) => {
-    // Add to goal progress
-    updateGoal(id, {
-      currentAmount: Number(goals?.find(g => g.id === id)?.currentAmount) + amount || amount
-    });
+    // Optimistic local bump
+    setGoals(prev =>
+      prev.map(goal => (goal.id === id ? { ...goal, currentAmount: goal.currentAmount + amount } : goal))
+    );
 
-    // Create a corresponding expense transaction to track money allocation
+    (async () => {
+      try {
+        const uid = typeof window !== 'undefined' ? (localStorage.getItem('userId') || 'demo-user') : 'demo-user';
+        const res = await fetch('/api/savings-contributions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: uid, goalId: id, amount }),
+        });
+        const json = await res.json();
+        if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to add contribution');
+        await reloadGoals();
+      } catch (e) {
+        console.error(e);
+        await reloadGoals();
+      }
+    })();
+
+    // Dispatch event for transaction integration (still handled by hook)
     const goal = goals.find(g => g.id === id);
     if (goal) {
-      // This will be handled by the transaction integration hook
       const event = new CustomEvent('savingsGoalContribution', {
         detail: { goalId: id, amount, goalTitle: goal.title }
       });

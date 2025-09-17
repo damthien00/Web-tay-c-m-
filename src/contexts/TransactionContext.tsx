@@ -4,8 +4,8 @@ import { Transaction, TransactionCategory } from '../types/Transaction';
 interface TransactionContextType {
   transactions: Transaction[];
   addTransaction: (transaction: Omit<Transaction, 'id' | 'createdAt'>) => Promise<void>;
-  updateTransaction: (id: string, transaction: Partial<Transaction>) => void;
-  deleteTransaction: (id: string) => void;
+  updateTransaction: (id: string, transaction: Partial<Transaction>) => Promise<void>;
+  deleteTransaction: (id: string) => Promise<void>;
   getBalance: () => number;
   getIncomeTotal: () => number;
   getExpenseTotal: () => number;
@@ -111,14 +111,55 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateTransaction = (id: string, updatedTransaction: Partial<Transaction>) => {
-    setTransactions(prev =>
-      prev.map(t => (t.id === id ? { ...t, ...updatedTransaction } : t))
-    );
+  const updateTransaction = async (id: string, updatedTransaction: Partial<Transaction>) => {
+    // Optimistic update
+    setTransactions(prev => prev.map(t => (t.id === id ? { ...t, ...updatedTransaction } : t)));
+
+    try {
+      const uid = typeof window !== 'undefined' ? (localStorage.getItem('userId') || 'demo-user') : 'demo-user';
+      const payload: any = { userId: uid };
+      if (updatedTransaction.type !== undefined) payload.type = updatedTransaction.type;
+      if (updatedTransaction.amount !== undefined) payload.amount = updatedTransaction.amount;
+      if (updatedTransaction.category !== undefined) payload.category = updatedTransaction.category;
+      if (updatedTransaction.description !== undefined) payload.description = updatedTransaction.description;
+      if (updatedTransaction.paymentMethod !== undefined) payload.paymentMethod = updatedTransaction.paymentMethod;
+      if (updatedTransaction.location !== undefined) payload.location = updatedTransaction.location;
+      if (updatedTransaction.tags !== undefined) payload.tags = updatedTransaction.tags;
+
+      const res = await fetch(`/api/transactions/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to update transaction');
+
+      await reloadRecentTransactions();
+    } catch (e) {
+      console.error(e);
+      await reloadRecentTransactions();
+      throw e;
+    }
   };
 
-  const deleteTransaction = (id: string) => {
+  const deleteTransaction = async (id: string) => {
+    // Optimistic remove
     setTransactions(prev => prev.filter(t => t.id !== id));
+
+    try {
+      const uid = typeof window !== 'undefined' ? (localStorage.getItem('userId') || 'demo-user') : 'demo-user';
+      const res = await fetch(`/api/transactions/${encodeURIComponent(id)}?userId=${encodeURIComponent(uid)}`, {
+        method: 'DELETE',
+      });
+      const json = await res.json();
+      if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to delete transaction');
+
+      await reloadRecentTransactions();
+    } catch (e) {
+      console.error(e);
+      await reloadRecentTransactions();
+      throw e;
+    }
   };
 
   const getBalance = () => {

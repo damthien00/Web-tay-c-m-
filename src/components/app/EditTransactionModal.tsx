@@ -81,19 +81,24 @@ export function EditTransactionModal({ transaction, isOpen, onClose }: EditTrans
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 600));
 
-    updateTransaction(transaction.id, {
-      type: formValues.type,
-      amount: parsedAmount,
-      category: formValues.category,
-      description: formValues.description.trim(),
-      paymentMethod: formValues.paymentMethod,
-    });
+    try {
+      await updateTransaction(transaction.id, {
+        type: formValues.type,
+        amount: parsedAmount,
+        category: formValues.category,
+        description: formValues.description.trim(),
+        paymentMethod: formValues.paymentMethod,
+      });
 
-    setShowSuccess(true);
-    setTimeout(() => {
-      onClose();
-      setShowSuccess(false);
-    }, 1500);
+      setShowSuccess(true);
+      setTimeout(() => {
+        onClose();
+        setShowSuccess(false);
+      }, 1500);
+    } catch (e) {
+      console.error(e);
+      alert('Có lỗi khi cập nhật giao dịch. Vui lòng thử lại.');
+    }
   };
 
   const handleClose = () => {
