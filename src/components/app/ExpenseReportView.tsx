@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useTransactions } from '../contexts/TransactionContext';
-import { CATEGORY_INFO, PAYMENT_METHOD_INFO } from '../constants/vietnamese';
-import { formatCurrency } from '../utils/currency';
-import { formatDate } from '../utils/helpers';
+import { useTransactions } from '../../contexts/TransactionContext';
+import { CATEGORY_INFO, PAYMENT_METHOD_INFO } from '../../constants/vietnamese';
+import { formatCurrency } from '../../utils/currency';
+import { formatDate } from '../../utils/helpers';
 import { FileText, Download, Calendar, Filter, TrendingDown } from 'lucide-react';
 
 export function ExpenseReportView() {
@@ -14,14 +14,14 @@ export function ExpenseReportView() {
   const getMonthlyTransactions = () => {
     return transactions.filter(t => {
       const transactionDate = new Date(t.createdAt);
-      return transactionDate.getMonth() === selectedMonth && 
+      return transactionDate.getMonth() === selectedMonth &&
              transactionDate.getFullYear() === selectedYear;
     });
   };
 
   const monthlyTransactions = getMonthlyTransactions();
-  const filteredTransactions = selectedCategory === 'all' 
-    ? monthlyTransactions 
+  const filteredTransactions = selectedCategory === 'all'
+    ? monthlyTransactions
     : monthlyTransactions.filter(t => t.category === selectedCategory);
 
   const monthlyIncome = monthlyTransactions
@@ -55,16 +55,16 @@ export function ExpenseReportView() {
 
   const generateReport = () => {
     const monthName = new Date(selectedYear, selectedMonth).toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' });
-    
+
     let report = `BÁO CÁO CHI TIÊU THÁNG ${monthName.toUpperCase()}\n`;
     report += `Được tạo ngày: ${new Date().toLocaleDateString('vi-VN')}\n\n`;
-    
+
     report += `TỔNG QUAN:\n`;
     report += `- Tổng thu nhập: ${formatCurrency(monthlyIncome)}\n`;
     report += `- Tổng chi tiêu: ${formatCurrency(monthlyExpense)}\n`;
     report += `- Số dư: ${formatCurrency(monthlyIncome - monthlyExpense)}\n`;
     report += `- Số giao dịch: ${monthlyTransactions.length}\n\n`;
-    
+
     if (topCategories.length > 0) {
       report += `CHI TIÊU THEO DANH MỤC:\n`;
       topCategories.forEach(([category, amount]) => {
@@ -74,7 +74,7 @@ export function ExpenseReportView() {
       });
       report += '\n';
     }
-    
+
     if (topPaymentMethods.length > 0) {
       report += `PHƯƠNG THỨC THANH TOÁN:\n`;
       topPaymentMethods.forEach(([method, amount]) => {
@@ -82,7 +82,7 @@ export function ExpenseReportView() {
         report += `- ${methodInfo.name}: ${formatCurrency(amount)}\n`;
       });
     }
-    
+
     // Create and download the report
     const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -100,7 +100,7 @@ export function ExpenseReportView() {
     'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
   ];
 
-  const expenseCategories = Object.keys(CATEGORY_INFO).filter(cat => 
+  const expenseCategories = Object.keys(CATEGORY_INFO).filter(cat =>
     !['luong-chinh', 'thu-nhap-phu', 'kinh-doanh', 'dau-tu', 'tien-thuong', 'tien-cho'].includes(cat)
   );
 
@@ -127,7 +127,7 @@ export function ExpenseReportView() {
           <Filter className="w-5 h-5 text-gray-600" />
           <span className="font-medium text-gray-800">Bộ lọc</span>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Tháng</label>
@@ -141,7 +141,7 @@ export function ExpenseReportView() {
               ))}
             </select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Năm</label>
             <select
@@ -186,7 +186,7 @@ export function ExpenseReportView() {
             <div className="text-sm text-red-700">Chi tiêu</div>
           </div>
         </div>
-        
+
         <div className="text-center p-3 bg-gray-50 rounded-lg">
           <div className={`text-2xl font-bold ${monthlyIncome - monthlyExpense >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {formatCurrency(monthlyIncome - monthlyExpense, true)}
@@ -205,7 +205,7 @@ export function ExpenseReportView() {
             {topCategories.map(([categoryKey, amount]) => {
               const category = CATEGORY_INFO[categoryKey as keyof typeof CATEGORY_INFO];
               const percentage = (amount / monthlyExpense * 100);
-              
+
               return (
                 <div key={categoryKey} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center space-x-3">
@@ -233,7 +233,7 @@ export function ExpenseReportView() {
             {topPaymentMethods.map(([methodKey, amount]) => {
               const method = PAYMENT_METHOD_INFO[methodKey as keyof typeof PAYMENT_METHOD_INFO];
               const percentage = ((amount / (monthlyIncome + monthlyExpense)) * 100);
-              
+
               return (
                 <div key={methodKey} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center space-x-3">

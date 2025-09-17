@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { useProjects } from '../contexts/ProjectContext';
-import { PROJECT_CATEGORIES } from '../constants/projects';
-import { parseVND } from '../utils/currency';
-import { useFormValidation } from '../hooks/useFormValidation';
+import { useProjects } from '../../contexts/ProjectContext';
+import { PROJECT_CATEGORIES } from '../../constants/projects';
+import { parseVND } from '../../utils/currency';
+import { useFormValidation } from '../../hooks/useFormValidation';
 import { FormField } from './FormField';
 import { CurrencyInput } from './CurrencyInput';
 import { LoadingButton } from './LoadingButton';
@@ -81,7 +81,7 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
   const onSubmit = async (formValues: typeof initialValues) => {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 800));
-    
+
     addProject({
       name: formValues.name.trim(),
       description: formValues.description.trim(),
@@ -92,7 +92,7 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
       endDate: formValues.endDate || undefined,
       currency: formValues.currency as any,
     });
-    
+
     setShowSuccess(true);
     setTimeout(() => {
       onClose();

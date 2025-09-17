@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { useSavingsGoals } from '../contexts/SavingsGoalContext';
-import { SAVINGS_GOAL_CATEGORIES } from '../constants/savingsGoals';
-import { parseVND } from '../utils/currency';
-import { useFormValidation } from '../hooks/useFormValidation';
+import { useSavingsGoals } from '../../contexts/SavingsGoalContext';
+import { SAVINGS_GOAL_CATEGORIES } from '../../constants/savingsGoals';
+import { parseVND } from '../../utils/currency';
+import { useFormValidation } from '../../hooks/useFormValidation';
 import { FormField } from './FormField';
 import { CurrencyInput } from './CurrencyInput';
 import { LoadingButton } from './LoadingButton';
@@ -52,13 +52,13 @@ export function SavingsGoalModal({ isOpen, onClose }: SavingsGoalModalProps) {
         const selectedDate = new Date(value);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        
+
         if (selectedDate <= today) return 'Thời hạn phải là ngày trong tương lai';
-        
+
         const maxDate = new Date();
         maxDate.setFullYear(maxDate.getFullYear() + 10);
         if (selectedDate > maxDate) return 'Thời hạn không được quá 10 năm';
-        
+
         return null;
       }
     },
@@ -78,17 +78,17 @@ export function SavingsGoalModal({ isOpen, onClose }: SavingsGoalModalProps) {
 
   const onSubmit = async (formValues: typeof initialValues) => {
     const parsedAmount = parseVND(formValues.targetAmount);
-    
+
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     addGoal({
       title: formValues.title.trim(),
       targetAmount: parsedAmount,
       deadline: formValues.deadline,
       category: formValues.category as any,
     });
-    
+
     setShowSuccess(true);
     setTimeout(() => {
       onClose();
@@ -107,7 +107,7 @@ export function SavingsGoalModal({ isOpen, onClose }: SavingsGoalModalProps) {
       const today = new Date();
       const diffTime = selectedDate.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
+
       if (diffDays > 0) {
         if (diffDays === 1) return 'Mục tiêu trong 1 ngày';
         if (diffDays <= 30) return `Mục tiêu trong ${diffDays} ngày`;

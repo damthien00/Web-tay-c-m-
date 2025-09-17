@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useSavingsGoals } from '../contexts/SavingsGoalContext';
-import { SAVINGS_GOAL_CATEGORIES } from '../constants/savingsGoals';
-import { formatCurrency } from '../utils/currency';
+import { useSavingsGoals } from '../../contexts/SavingsGoalContext';
+import { SAVINGS_GOAL_CATEGORIES } from '../../constants/savingsGoals';
+import { formatCurrency } from '../../utils/currency';
 import { Plus, Target, Calendar, Trash2, PiggyBank } from 'lucide-react';
 import { SavingsGoalModal } from './SavingsGoalModal';
 import { AddToGoalModal } from './AddToGoalModal';
@@ -108,7 +108,7 @@ export function SavingsGoalsView() {
                       <span className="text-gray-600">Tiến độ</span>
                       <span className="font-medium">{progress.toFixed(1)}%</span>
                     </div>
-                    
+
                     <div className="w-full bg-gray-200 rounded-full h-3">
                       <div
                         className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500"
@@ -135,9 +135,9 @@ export function SavingsGoalsView() {
                       <div className="flex items-center space-x-1">
                         <Calendar className="w-4 h-4" />
                         <span>
-                          {daysRemaining > 0 
+                          {daysRemaining > 0
                             ? `Còn ${daysRemaining} ngày`
-                            : daysRemaining === 0 
+                            : daysRemaining === 0
                             ? 'Hết hạn hôm nay'
                             : `Quá hạn ${Math.abs(daysRemaining)} ngày`
                           }

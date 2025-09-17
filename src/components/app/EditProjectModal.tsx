@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { useProjects } from '../contexts/ProjectContext';
-import { PROJECT_CATEGORIES } from '../constants/projects';
-import { parseVND } from '../utils/currency';
-import { useFormValidation } from '../hooks/useFormValidation';
+import { useProjects } from '../../contexts/ProjectContext';
+import { PROJECT_CATEGORIES } from '../../constants/projects';
+import { parseVND } from '../../utils/currency';
+import { useFormValidation } from '../../hooks/useFormValidation';
 import { FormField } from './FormField';
 import { CurrencyInput } from './CurrencyInput';
 import { LoadingButton } from './LoadingButton';
 import { SuccessNotification } from './SuccessNotification';
-import { Project } from '../types/Project';
+import { Project } from '../../types/Project';
 
 interface EditProjectModalProps {
   project: Project;
@@ -96,7 +96,7 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
   const onSubmit = async (formValues: typeof initialValues) => {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 800));
-    
+
     updateProject(project.id, {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
@@ -107,7 +107,7 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
       endDate: formValues.endDate || undefined,
       currency: formValues.currency as any,
     });
-    
+
     setShowSuccess(true);
     setTimeout(() => {
       onClose();

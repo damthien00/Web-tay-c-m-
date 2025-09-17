@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { Edit3, CheckCircle, Trash2, X } from 'lucide-react';
-import { Project } from '../types/Project';
+import { Project } from '../../types/Project';
 
 interface ProjectActionsMenuProps {
   project: Project;
@@ -36,7 +36,7 @@ export function ProjectActionsMenu({ project, onEdit, onComplete, onDelete, onCl
         <Edit3 className="w-4 h-4 text-blue-600" />
         <span className="text-gray-800">Chỉnh sửa dự án</span>
       </button>
-      
+
       {project.status !== 'completed' && (
         <button
           onClick={onComplete}
@@ -46,9 +46,9 @@ export function ProjectActionsMenu({ project, onEdit, onComplete, onDelete, onCl
           <span className="text-gray-800">Đánh dấu hoàn thành</span>
         </button>
       )}
-      
+
       <div className="border-t border-gray-100 my-1" />
-      
+
       <button
         onClick={onDelete}
         className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-red-50 transition-colors text-red-600"

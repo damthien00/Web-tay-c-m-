@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { X, Plus, TrendingUp, TrendingDown, DollarSign, Calendar, AlertTriangle, Edit3, CheckCircle, Trash2 } from 'lucide-react';
-import { useProjects } from '../contexts/ProjectContext';
-import { Project } from '../types/Project';
-import { PROJECT_CATEGORIES, EXPENSE_CATEGORIES, REVENUE_SOURCES } from '../constants/projects';
-import { formatCurrency } from '../utils/currency';
-import { formatDate } from '../utils/helpers';
+import { useProjects } from '../../contexts/ProjectContext';
+import { Project } from '../../types/Project';
+import { PROJECT_CATEGORIES, EXPENSE_CATEGORIES, REVENUE_SOURCES } from '../../constants/projects';
+import { formatCurrency } from '../../utils/currency';
+import { formatDate } from '../../utils/helpers';
 import { AddProjectExpenseModal } from './AddProjectExpenseModal';
 import { AddProjectRevenueModal } from './AddProjectRevenueModal';
 import { EditProjectModal } from './EditProjectModal';
@@ -16,19 +16,19 @@ interface ProjectDetailModalProps {
 }
 
 export function ProjectDetailModal({ project, isOpen, onClose }: ProjectDetailModalProps) {
-  const { 
-    expenses, 
-    revenues, 
+  const {
+    expenses,
+    revenues,
     updateProject,
     deleteProject,
-    getProjectProfit, 
+    getProjectProfit,
     getProjectPaidRevenue,
     getProjectUnpaidRevenue,
     getBudgetUtilization,
     getProjectExpenses,
-    getProjectRevenue 
+    getProjectRevenue
   } = useProjects();
-  
+
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showRevenueModal, setShowRevenueModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -100,7 +100,7 @@ export function ProjectDetailModal({ project, isOpen, onClose }: ProjectDetailMo
               >
                 <Edit3 className="w-5 h-5 text-blue-600" />
               </button>
-              
+
               {project.status !== 'completed' && (
                 <button
                   onClick={handleComplete}
@@ -110,7 +110,7 @@ export function ProjectDetailModal({ project, isOpen, onClose }: ProjectDetailMo
                   <CheckCircle className="w-5 h-5 text-green-600" />
                 </button>
               )}
-              
+
               <button
                 onClick={handleDelete}
                 className="p-2 rounded-full bg-red-100 hover:bg-red-200 transition-colors"
@@ -118,7 +118,7 @@ export function ProjectDetailModal({ project, isOpen, onClose }: ProjectDetailMo
               >
                 <Trash2 className="w-5 h-5 text-red-600" />
               </button>
-              
+
               <button
                 onClick={onClose}
                 className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
@@ -218,7 +218,7 @@ export function ProjectDetailModal({ project, isOpen, onClose }: ProjectDetailMo
                     <p><strong>Mô tả:</strong> {project.description}</p>
                     <p><strong>Ngày bắt đầu:</strong> {formatDate(project.startDate)}</p>
                     {project.endDate && <p><strong>Ngày kết thúc:</strong> {formatDate(project.endDate)}</p>}
-                    <p><strong>Trạng thái:</strong> 
+                    <p><strong>Trạng thái:</strong>
                       <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
                         project.status === 'active' ? 'bg-green-100 text-green-800' :
                         project.status === 'completed' ? 'bg-blue-100 text-blue-800' :
@@ -260,7 +260,7 @@ export function ProjectDetailModal({ project, isOpen, onClose }: ProjectDetailMo
                       {getExpensesByCategory().slice(0, 5).map(([categoryKey, amount]) => {
                         const category = EXPENSE_CATEGORIES[categoryKey];
                         const percentage = totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0;
-                        
+
                         return (
                           <div key={categoryKey} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
                             <div className="flex items-center space-x-2">

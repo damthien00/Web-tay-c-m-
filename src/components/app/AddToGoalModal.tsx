@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { useSavingsGoals } from '../contexts/SavingsGoalContext';
-import { parseVND } from '../utils/currency';
-import { useFormValidation } from '../hooks/useFormValidation';
+import { useSavingsGoals } from '../../contexts/SavingsGoalContext';
+import { parseVND } from '../../utils/currency';
+import { useFormValidation } from '../../hooks/useFormValidation';
 import { CurrencyInput } from './CurrencyInput';
 import { LoadingButton } from './LoadingButton';
 import { SuccessNotification } from './SuccessNotification';
-import { formatCurrency } from '../utils/currency';
+import { formatCurrency } from '../../utils/currency';
 
 interface AddToGoalModalProps {
   goalId: string;

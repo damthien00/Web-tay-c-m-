@@ -1,15 +1,15 @@
 "use client"
-import {DashboardView} from "@/components/DashboardView";
-import {NavigationBar} from "@/components/NavigationBar";
+import {DashboardView} from "@/components/app/DashboardView";
+import {NavigationBar} from "@/components/app/NavigationBar";
 import {useProjectIntegration} from "@/src/hooks/useProjectIntegration";
 import {useState} from "react";
-import {TransactionView} from "@/components/TransactionView";
-import {AnalyticsView} from "@/components/AnalyticsView";
-import {SettingsView} from "@/components/SettingsView";
-import {SavingsGoalsView} from "@/components/SavingsGoalsView";
-import {SpendingTrendsView} from "@/components/SpendingTrendsView";
-import {ExpenseReportView} from "@/components/ExpenseReportView";
-import {ProjectsView} from "@/components/ProjectsView";
+import {TransactionView} from "@/components/app/TransactionView";
+import {AnalyticsView} from "@/components/app/AnalyticsView";
+import {SettingsView} from "@/components/app/SettingsView";
+import {SavingsGoalsView} from "@/components/app/SavingsGoalsView";
+import {SpendingTrendsView} from "@/components/app/SpendingTrendsView";
+import {ExpenseReportView} from "@/components/app/ExpenseReportView";
+import {ProjectsView} from "@/components/app/ProjectsView";
 
 export default function HomePage() {
 	useProjectIntegration(); // Sync project finances with general transactions

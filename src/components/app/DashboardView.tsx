@@ -1,14 +1,13 @@
 "use client"
 
 import React from 'react';
-import { useTransactions } from '../contexts/TransactionContext';
-import { formatVND, formatCurrency } from '../utils/currency';
-import { getVietnameseGreeting } from '../utils/helpers';
+import { useTransactions } from '../../contexts/TransactionContext';
+import { formatVND, formatCurrency } from '../../utils/currency';
+import { getVietnameseGreeting } from '../../utils/helpers';
 import { TrendingUp, TrendingDown, Wallet, Eye, EyeOff } from 'lucide-react';
 import { QuickActions } from './QuickActions';
 import { RecentTransactions } from './RecentTransactions';
-import { useSavingsGoals } from '../contexts/SavingsGoalContext';
-import { useProjects } from '../contexts/ProjectContext';
+import { useSavingsGoals } from '../../contexts/SavingsGoalContext';
 import { useState } from 'react';
 
 interface DashboardViewProps {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useTransactions } from '../contexts/TransactionContext';
-import { CATEGORY_INFO } from '../constants/vietnamese';
-import { formatCurrency } from '../utils/currency';
+import { useTransactions } from '../../contexts/TransactionContext';
+import { CATEGORY_INFO } from '../../constants/vietnamese';
+import { formatCurrency } from '../../utils/currency';
 import { TrendingUp, TrendingDown, Calendar, BarChart3 } from 'lucide-react';
 
 export function SpendingTrendsView() {
@@ -15,7 +15,7 @@ export function SpendingTrendsView() {
       month: 30,
       quarter: 90
     };
-    
+
     const days = ranges[period];
     const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
     return { startDate, endDate: now };
@@ -36,7 +36,7 @@ export function SpendingTrendsView() {
       .forEach(t => {
         categorySpending[t.category] = (categorySpending[t.category] || 0) + t.amount;
       });
-    
+
     return Object.entries(categorySpending)
       .sort(([,a], [,b]) => b - a)
       .slice(0, 8);
@@ -49,16 +49,16 @@ export function SpendingTrendsView() {
       endDate.setDate(endDate.getDate() - (i * 7));
       const startDate = new Date(endDate);
       startDate.setDate(startDate.getDate() - 6);
-      
+
       const weekTransactions = transactions.filter(t => {
         const transactionDate = new Date(t.createdAt);
         return transactionDate >= startDate && transactionDate <= endDate;
       });
-      
+
       const weekExpense = weekTransactions
         .filter(t => t.type === 'expense')
         .reduce((sum, t) => sum + t.amount, 0);
-      
+
       weeks.push({
         label: `Tuần ${4 - i}`,
         amount: weekExpense,
@@ -72,11 +72,11 @@ export function SpendingTrendsView() {
   const currentPeriodTransactions = getTransactionsInPeriod(selectedPeriod);
   const categorySpending = getSpendingByCategory(currentPeriodTransactions);
   const weeklyTrend = getWeeklyTrend();
-  
+
   const totalExpense = currentPeriodTransactions
     .filter(t => t.type === 'expense')
     .reduce((sum, t) => sum + t.amount, 0);
-  
+
   const totalIncome = currentPeriodTransactions
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
@@ -129,7 +129,7 @@ export function SpendingTrendsView() {
             {formatCurrency(totalIncome, true)}
           </div>
         </div>
-        
+
         <div className="bg-red-50 rounded-xl p-4 border border-red-200">
           <div className="flex items-center space-x-2 mb-2">
             <TrendingDown className="w-5 h-5 text-red-600" />
@@ -147,11 +147,11 @@ export function SpendingTrendsView() {
           <BarChart3 className="w-5 h-5 text-gray-600" />
           <h3 className="font-semibold text-gray-800">Xu hướng chi tiêu theo tuần</h3>
         </div>
-        
+
         <div className="space-y-3">
           {weeklyTrend.map((week, index) => {
             const percentage = maxWeeklyExpense > 0 ? (week.amount / maxWeeklyExpense * 100) : 0;
-            
+
             return (
               <div key={index} className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
@@ -178,7 +178,7 @@ export function SpendingTrendsView() {
       {/* Category Breakdown */}
       <div className="bg-white rounded-xl p-4 shadow-sm border">
         <h3 className="font-semibold text-gray-800 mb-4">Chi tiêu theo danh mục</h3>
-        
+
         {categorySpending.length === 0 ? (
           <p className="text-center text-gray-500 py-4">Chưa có dữ liệu chi tiêu</p>
         ) : (
@@ -186,7 +186,7 @@ export function SpendingTrendsView() {
             {categorySpending.map(([categoryKey, amount]) => {
               const category = CATEGORY_INFO[categoryKey as keyof typeof CATEGORY_INFO];
               const percentage = totalExpense > 0 ? (amount / totalExpense * 100) : 0;
-              
+
               return (
                 <div key={categoryKey} className="space-y-2">
                   <div className="flex items-center justify-between">

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useTransactions } from '../contexts/TransactionContext';
-import { Transaction } from '../types/Transaction';
-import { CATEGORY_INFO, PAYMENT_METHOD_INFO } from '../constants/vietnamese';
-import { formatVND, formatCurrency } from '../utils/currency';
-import { formatDate } from '../utils/helpers';
+import { useTransactions } from '../../contexts/TransactionContext';
+import { Transaction } from '../../types/Transaction';
+import { CATEGORY_INFO, PAYMENT_METHOD_INFO } from '../../constants/vietnamese';
+import { formatVND, formatCurrency } from '../../utils/currency';
+import { formatDate } from '../../utils/helpers';
 import { Search, Filter, Plus, Trash2, Edit3 } from 'lucide-react';
 import { AddTransactionModal } from './AddTransactionModal';
 import { EditTransactionModal } from './EditTransactionModal';
@@ -57,7 +57,7 @@ export function TransactionView() {
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent focus:outline-none"
             />
           </div>
-          
+
           <div className="flex space-x-2">
             <button
               onClick={() => setFilterType('all')}
@@ -128,7 +128,7 @@ export function TransactionView() {
                             {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount, true)}
                           </div>
                           <div className="flex space-x-1">
-                            <button 
+                            <button
                               onClick={() => setEditingTransaction(transaction)}
                               className="p-1 text-gray-400 hover:text-blue-600 rounded transition-colors"
                             >
@@ -156,7 +156,7 @@ export function TransactionView() {
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
       />
-      
+
       {editingTransaction && (
         <EditTransactionModal
           transaction={editingTransaction}

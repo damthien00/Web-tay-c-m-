@@ -1,29 +1,28 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { useProjects } from '../contexts/ProjectContext';
-import { REVENUE_SOURCES } from '../constants/projects';
-import { parseVND } from '../utils/currency';
-import { useFormValidation } from '../hooks/useFormValidation';
+import { useProjects } from '../../contexts/ProjectContext';
+import { EXPENSE_CATEGORIES } from '../../constants/projects';
+import { parseVND } from '../../utils/currency';
+import { useFormValidation } from '../../hooks/useFormValidation';
 import { FormField } from './FormField';
 import { CurrencyInput } from './CurrencyInput';
 import { LoadingButton } from './LoadingButton';
 import { SuccessNotification } from './SuccessNotification';
 
-interface AddProjectRevenueModalProps {
+interface AddProjectExpenseModalProps {
   projectId: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function AddProjectRevenueModal({ projectId, isOpen, onClose }: AddProjectRevenueModalProps) {
-  const { addRevenue } = useProjects();
+export function AddProjectExpenseModal({ projectId, isOpen, onClose }: AddProjectExpenseModalProps) {
+  const { addExpense } = useProjects();
   const [showSuccess, setShowSuccess] = useState(false);
 
   const initialValues = {
     amount: '',
     description: '',
-    source: 'client-payment',
-    status: 'received',
+    category: 'development',
     date: new Date().toISOString().split('T')[0],
   };
 
@@ -33,7 +32,7 @@ export function AddProjectRevenueModal({ projectId, isOpen, onClose }: AddProjec
       custom: (value: string) => {
         const parsed = parseVND(value);
         if (parsed <= 0) return 'Số tiền phải lớn hơn 0';
-        if (parsed > 10000000000) return 'Số tiền quá lớn (tối đa 10 tỷ)';
+        if (parsed > 1000000000) return 'Số tiền quá lớn (tối đa 1 tỷ)';
         return null;
       }
     },
@@ -64,14 +63,12 @@ export function AddProjectRevenueModal({ projectId, isOpen, onClose }: AddProjec
 
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    addRevenue({
-	    paidAmount: 0,
-	    projectId,
+    addExpense({
+      projectId,
       amount: parsedAmount,
       description: formValues.description.trim(),
-      source: formValues.source as any,
-      status: formValues.status as any,
-      date: formValues.date
+      category: formValues.category as any,
+      date: formValues.date,
     });
 
     setShowSuccess(true);
@@ -93,7 +90,7 @@ export function AddProjectRevenueModal({ projectId, isOpen, onClose }: AddProjec
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
         <div className="bg-white w-full max-w-md rounded-2xl p-4 sm:p-6 space-y-4 sm:space-y-6 mx-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-800">Thêm doanh thu dự án</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-gray-800">Thêm chi phí dự án</h2>
             <button
               onClick={handleClose}
               className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
@@ -104,18 +101,18 @@ export function AddProjectRevenueModal({ projectId, isOpen, onClose }: AddProjec
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
             <CurrencyInput
-              label="Số tiền doanh thu"
+              label="Số tiền chi phí"
               value={values.amount}
               onChange={(value) => setValue('amount', value)}
               onBlur={() => setTouched('amount')}
               error={errors.amount}
               touched={touched.amount}
               required
-              helpText="Số tiền doanh thu từ dự án"
+              helpText="Số tiền chi phí cho dự án"
             />
 
             <FormField
-              label="Mô tả doanh thu"
+              label="Mô tả chi phí"
               name="description"
               type="text"
               value={values.description}
@@ -123,89 +120,29 @@ export function AddProjectRevenueModal({ projectId, isOpen, onClose }: AddProjec
               onBlur={() => setTouched('description')}
               error={errors.description}
               touched={touched.description}
-              placeholder="Ví dụ: Thanh toán giai đoạn 1, Hoa hồng bán hàng..."
+              placeholder="Ví dụ: Thuê developer, Mua hosting..."
               required
-              helpText="Mô tả chi tiết về khoản doanh thu này"
+              helpText="Mô tả chi tiết về khoản chi phí này"
             />
 
             <FormField
-              label="Nguồn doanh thu"
-              name="source"
+              label="Danh mục chi phí"
+              name="category"
               type="select"
-              value={values.source}
-              onChange={(value) => setValue('source', value)}
-              onBlur={() => setTouched('source')}
-              error={errors.source}
-              touched={touched.source}
+              value={values.category}
+              onChange={(value) => setValue('category', value)}
+              onBlur={() => setTouched('category')}
+              error={errors.category}
+              touched={touched.category}
               required
-              options={Object.entries(REVENUE_SOURCES).map(([key, source]) => ({
+              options={Object.entries(EXPENSE_CATEGORIES).map(([key, cat]) => ({
                 value: key,
-                label: `${source.icon} ${source.name}`
+                label: `${cat.icon} ${cat.name}`
               }))}
             />
 
             <FormField
-              label="Trạng thái thanh toán"
-              name="status"
-              type="select"
-              value={values.status}
-              onChange={(value) => setValue('status', value)}
-              onBlur={() => setTouched('status')}
-              error={errors.status}
-              touched={touched.status}
-              required
-              options={[
-                { value: 'received', label: '✅ Đã nhận' },
-                { value: 'pending', label: '⏳ Chờ thanh toán' },
-                { value: 'overdue', label: '⚠️ Quá hạn' }
-              ]}
-            />
-
-            {/* Paid Amount */}
-            {values.status !== 'received' && (
-              <CurrencyInput
-                label="Số tiền đã nhận (nếu có)"
-                value={values.paidAmount}
-                onChange={(value) => setValue('paidAmount', value)}
-                onBlur={() => setTouched('paidAmount')}
-                error={errors.paidAmount}
-                touched={touched.paidAmount}
-                placeholder="Ví dụ: 50% đã nhận trước"
-                helpText="Để trống nếu chưa nhận gì"
-              />
-            )}
-
-            {/* Invoice Number */}
-            <FormField
-              label="Số hóa đơn (tùy chọn)"
-              name="invoiceNumber"
-              type="text"
-              value={values.invoiceNumber}
-              onChange={(value) => setValue('invoiceNumber', value)}
-              onBlur={() => setTouched('invoiceNumber')}
-              error={errors.invoiceNumber}
-              touched={touched.invoiceNumber}
-              placeholder="Ví dụ: INV-001, HD-2025-001"
-              helpText="Số hóa đơn để dễ theo dõi"
-            />
-
-            {/* Due Date for pending/overdue */}
-            {values.status !== 'received' && (
-              <FormField
-                label="Ngày đến hạn thanh toán"
-                name="dueDate"
-                type="date"
-                value={values.dueDate}
-                onChange={(value) => setValue('dueDate', value)}
-                onBlur={() => setTouched('dueDate')}
-                error={errors.dueDate}
-                touched={touched.dueDate}
-                helpText="Ngày khách hàng cần thanh toán"
-              />
-            )}
-
-            <FormField
-              label="Ngày doanh thu"
+              label="Ngày chi phí"
               name="date"
               type="date"
               value={values.date}
@@ -229,10 +166,10 @@ export function AddProjectRevenueModal({ projectId, isOpen, onClose }: AddProjec
                 type="submit"
                 isLoading={isSubmitting}
                 disabled={!isValid}
-                variant="success"
+                variant="danger"
                 className="flex-1"
               >
-                {isSubmitting ? 'Đang thêm...' : 'Thêm doanh thu'}
+                {isSubmitting ? 'Đang thêm...' : 'Thêm chi phí'}
               </LoadingButton>
             </div>
           </form>
@@ -241,7 +178,7 @@ export function AddProjectRevenueModal({ projectId, isOpen, onClose }: AddProjec
 
       <SuccessNotification
         isVisible={showSuccess}
-        message="Doanh thu đã được thêm vào dự án! 💰"
+        message="Chi phí đã được thêm vào dự án! 💸"
         onClose={() => setShowSuccess(false)}
       />
     </>

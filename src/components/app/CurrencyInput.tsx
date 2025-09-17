@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { parseVND, formatInputPreview } from '../utils/currency';
+import { parseVND, formatInputPreview } from '../../utils/currency';
 import { Check, AlertCircle } from 'lucide-react';
 
 interface CurrencyInputProps {
@@ -74,7 +74,7 @@ export function CurrencyInput({
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
-      
+
       <div className="relative">
         <input
           type="text"
@@ -87,7 +87,7 @@ export function CurrencyInput({
           required={required}
           className={inputClasses}
         />
-        
+
         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
           {isValid ? (
             <Check className="w-5 h-5 text-green-500" />

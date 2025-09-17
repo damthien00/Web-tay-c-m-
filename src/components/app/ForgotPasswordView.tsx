@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Mail, Send, CheckCircle } from 'lucide-react';
-import { useFormValidation } from '../hooks/useFormValidation';
+import { useFormValidation } from '../../hooks/useFormValidation';
 import { FormField } from './FormField';
 import { LoadingButton } from './LoadingButton';
 import { SuccessNotification } from './SuccessNotification';

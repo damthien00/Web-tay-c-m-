@@ -1,29 +1,29 @@
 import React, { useState } from 'react';
-import { useProjects } from '../contexts/ProjectContext';
-import { PROJECT_CATEGORIES } from '../constants/projects';
-import { formatCurrency } from '../utils/currency';
+import { useProjects } from '../../contexts/ProjectContext';
+import { PROJECT_CATEGORIES } from '../../constants/projects';
+import { formatCurrency } from '../../utils/currency';
 import { Plus, TrendingUp, TrendingDown, AlertTriangle, Target, Filter, MoreVertical } from 'lucide-react';
 import { AddProjectModal } from './AddProjectModal';
 import { ProjectDetailModal } from './ProjectDetailModal';
 import { EditProjectModal } from './EditProjectModal';
 import { ProjectActionsMenu } from './ProjectActionsMenu';
-import { Project } from '../types/Project';
+import { Project } from '../../types/Project';
 
 export function ProjectsView() {
-  const { 
-    projects, 
+  const {
+    projects,
     updateProject,
     deleteProject,
-    getProjectProfit, 
+    getProjectProfit,
     getProjectPaidRevenue,
     getProjectUnpaidRevenue,
-    getBudgetUtilization, 
+    getBudgetUtilization,
     getTotalPortfolioValue,
     getTotalPortfolioPaid,
     getProfitableProjects,
-    getLosingProjects 
+    getLosingProjects
   } = useProjects();
-  
+
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -53,7 +53,7 @@ export function ProjectsView() {
   const getProjectStatusColor = (project: Project) => {
     const profit = getProjectProfit(project.id);
     const utilization = getBudgetUtilization(project.id);
-    
+
     if (profit > 0) return 'border-green-500 bg-green-50';
     if (profit < 0) return 'border-red-500 bg-red-50';
     if (utilization > 80) return 'border-yellow-500 bg-yellow-50';
@@ -63,7 +63,7 @@ export function ProjectsView() {
   const getProjectStatusIcon = (project: Project) => {
     const profit = getProjectProfit(project.id);
     const utilization = getBudgetUtilization(project.id);
-    
+
     if (profit > 0) return <TrendingUp className="w-5 h-5 text-green-600" />;
     if (profit < 0) return <TrendingDown className="w-5 h-5 text-red-600" />;
     if (utilization > 80) return <AlertTriangle className="w-5 h-5 text-yellow-600" />;
@@ -110,7 +110,7 @@ export function ProjectsView() {
               <div className="text-blue-100 text-xs sm:text-sm">Lợi nhuận ròng</div>
             </div>
           </div>
-          
+
           <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
             <div className="flex items-center space-x-2">
               <TrendingUp className="w-4 h-4 text-green-200" />
@@ -218,7 +218,7 @@ export function ProjectsView() {
                         >
                           <MoreVertical className="w-4 h-4 text-gray-600" />
                         </button>
-                        
+
                         {projectMenuId === project.id && (
                           <ProjectActionsMenu
                             project={project}
@@ -302,7 +302,7 @@ export function ProjectsView() {
                         </div>
                       </div>
                     )}
-                    
+
                     {profit < 0 && project.totalRevenue > 0 && (
                       <div className="bg-red-100 border border-red-300 rounded-lg p-2 sm:p-3">
                         <div className="flex items-center space-x-2">

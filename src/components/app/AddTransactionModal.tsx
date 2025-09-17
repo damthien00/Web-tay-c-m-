@@ -1,31 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { useTransactions } from '../contexts/TransactionContext';
-import { Transaction, TransactionCategory, PaymentMethod } from '../types/Transaction';
-import { CATEGORY_INFO, PAYMENT_METHOD_INFO } from '../constants/vietnamese';
-import { parseVND } from '../utils/currency';
-import { useFormValidation } from '../hooks/useFormValidation';
+import { useTransactions } from '../../contexts/TransactionContext';
+import { TransactionCategory, PaymentMethod } from '../../types/Transaction';
+import { CATEGORY_INFO, PAYMENT_METHOD_INFO } from '../../constants/vietnamese';
+import { parseVND } from '../../utils/currency';
+import { useFormValidation } from '../../hooks/useFormValidation';
 import { FormField } from './FormField';
 import { CurrencyInput } from './CurrencyInput';
 import { LoadingButton } from './LoadingButton';
 import { SuccessNotification } from './SuccessNotification';
 
-interface EditTransactionModalProps {
-  transaction: Transaction;
+interface AddTransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function EditTransactionModal({ transaction, isOpen, onClose }: EditTransactionModalProps) {
-  const { updateTransaction } = useTransactions();
+export function AddTransactionModal({ isOpen, onClose }: AddTransactionModalProps) {
+  const { addTransaction } = useTransactions();
   const [showSuccess, setShowSuccess] = useState(false);
 
   const initialValues = {
-    type: transaction.type,
-    amount: transaction.amount.toString(),
-    category: transaction.category,
-    description: transaction.description,
-    paymentMethod: transaction.paymentMethod,
+    type: 'expense' as 'income' | 'expense',
+    amount: '',
+    category: 'an-uong-duong-pho' as TransactionCategory,
+    description: '',
+    paymentMethod: 'tien-mat' as PaymentMethod,
   };
 
   const validationRules = {
@@ -57,38 +56,28 @@ export function EditTransactionModal({ transaction, isOpen, onClose }: EditTrans
     reset,
   } = useFormValidation(initialValues, validationRules);
 
-  useEffect(() => {
-    if (transaction && isOpen) {
-      setValue('type', transaction.type);
-      setValue('amount', transaction.amount.toString());
-      setValue('category', transaction.category);
-      setValue('description', transaction.description);
-      setValue('paymentMethod', transaction.paymentMethod);
-    }
-  }, [transaction, isOpen, setValue]);
-
-  const incomeCategories = Object.keys(CATEGORY_INFO).filter(cat => 
+  const incomeCategories = Object.keys(CATEGORY_INFO).filter(cat =>
     ['luong-chinh', 'thu-nhap-phu', 'kinh-doanh', 'dau-tu', 'tien-thuong', 'tien-cho'].includes(cat)
   ) as TransactionCategory[];
 
-  const expenseCategories = Object.keys(CATEGORY_INFO).filter(cat => 
+  const expenseCategories = Object.keys(CATEGORY_INFO).filter(cat =>
     !incomeCategories.includes(cat as TransactionCategory)
   ) as TransactionCategory[];
 
   const onSubmit = async (formValues: typeof initialValues) => {
     const parsedAmount = parseVND(formValues.amount);
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 600));
-    
-    updateTransaction(transaction.id, {
+
+    // Simulate API delay for better UX demonstration
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    addTransaction({
       type: formValues.type,
       amount: parsedAmount,
       category: formValues.category,
       description: formValues.description.trim(),
       paymentMethod: formValues.paymentMethod,
     });
-    
+
     setShowSuccess(true);
     setTimeout(() => {
       onClose();
@@ -118,7 +107,7 @@ export function EditTransactionModal({ transaction, isOpen, onClose }: EditTrans
       <div className="fixed inset-0 bg-black/50 flex items-end z-50">
         <div className="bg-white w-full rounded-t-3xl p-6 space-y-6 max-h-[90vh] overflow-y-auto">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-800">Chỉnh sửa giao dịch</h2>
+            <h2 className="text-xl font-bold text-gray-800">Thêm giao dịch mới</h2>
             <button
               onClick={handleClose}
               className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
@@ -237,20 +226,20 @@ export function EditTransactionModal({ transaction, isOpen, onClose }: EditTrans
                 variant="primary"
                 className="flex-1"
               >
-                {isSubmitting ? 'Đang cập nhật...' : 'Cập nhật giao dịch'}
+                {isSubmitting ? 'Đang thêm...' : 'Thêm giao dịch'}
               </LoadingButton>
             </div>
           </form>
 
-          {/* Form Progress */}
+          {/* Form Progress Indicator */}
           <div className="flex items-center justify-center space-x-2">
             <div className="flex space-x-1">
-              {['amount', 'description'].map((field) => (
+              {['amount', 'description'].map((field, index) => (
                 <div
                   key={field}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  className={`w-2 h-2 rounded-full transition-colors ${
                     touched[field] && !errors[field] && values[field]
-                      ? 'bg-green-500 scale-110'
+                      ? 'bg-green-500'
                       : touched[field] && errors[field]
                       ? 'bg-red-500'
                       : 'bg-gray-300'
@@ -267,7 +256,7 @@ export function EditTransactionModal({ transaction, isOpen, onClose }: EditTrans
 
       <SuccessNotification
         isVisible={showSuccess}
-        message="Giao dịch đã được cập nhật thành công! ✨"
+        message="Giao dịch đã được thêm thành công! 🎉"
         onClose={() => setShowSuccess(false)}
       />
     </>

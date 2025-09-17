@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, User, Mail, Phone, MapPin, Briefcase, Calendar } from 'lucide-react';
-import { useFormValidation } from '../hooks/useFormValidation';
+import { useFormValidation } from '../../hooks/useFormValidation';
 import { FormField } from './FormField';
 import { LoadingButton } from './LoadingButton';
 import { SuccessNotification } from './SuccessNotification';

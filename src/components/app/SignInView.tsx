@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Smartphone, Shield } from 'lucide-react';
-import { useFormValidation } from '../hooks/useFormValidation';
+import { useFormValidation } from '../../hooks/useFormValidation';
 import { FormField } from './FormField';
 import { LoadingButton } from './LoadingButton';
 import { SuccessNotification } from './SuccessNotification';
@@ -60,7 +60,7 @@ export function SignInView({ onSignIn, onForgotPassword, onSignUp }: SignInViewP
     try {
       setAuthError(null);
       await onSignIn(formValues.email, formValues.password);
-      
+
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
@@ -141,7 +141,7 @@ export function SignInView({ onSignIn, onForgotPassword, onSignUp }: SignInViewP
                   />
                   <span className="text-sm text-gray-600">Ghi nhớ đăng nhập</span>
                 </label>
-                
+
                 <button
                   type="button"
                   onClick={onForgotPassword}
@@ -208,7 +208,7 @@ export function SignInView({ onSignIn, onForgotPassword, onSignUp }: SignInViewP
               <span className="text-blue-800 font-medium">Bảo mật thông tin</span>
             </div>
             <p className="text-blue-700 text-sm">
-              Dữ liệu tài chính của bạn được mã hóa và bảo vệ theo tiêu chuẩn ngân hàng. 
+              Dữ liệu tài chính của bạn được mã hóa và bảo vệ theo tiêu chuẩn ngân hàng.
               Chúng tôi không bao giờ chia sẻ thông tin cá nhân của bạn.
             </p>
           </div>

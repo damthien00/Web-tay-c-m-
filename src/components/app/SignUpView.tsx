@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Shield, CheckCircle } from 'lucide-react';
-import { useFormValidation } from '../hooks/useFormValidation';
+import { useFormValidation } from '../../hooks/useFormValidation';
 import { FormField } from './FormField';
 import { LoadingButton } from './LoadingButton';
 import { SuccessNotification } from './SuccessNotification';
@@ -93,7 +93,7 @@ export function SignUpView({ onSignUp, onSignIn }: SignUpViewProps) {
     try {
       setAuthError(null);
       await onSignUp(formValues.email, formValues.password, formValues.fullName);
-      
+
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
@@ -106,13 +106,13 @@ export function SignUpView({ onSignUp, onSignIn }: SignUpViewProps) {
   const getPasswordStrength = () => {
     const password = values.password;
     if (!password) return { strength: 0, label: '', color: '' };
-    
+
     let strength = 0;
     if (password.length >= 8) strength += 25;
     if (/[a-z]/.test(password)) strength += 25;
     if (/[A-Z]/.test(password)) strength += 25;
     if (/\d/.test(password)) strength += 25;
-    
+
     if (strength <= 25) return { strength, label: 'Yếu', color: 'bg-red-500' };
     if (strength <= 50) return { strength, label: 'Trung bình', color: 'bg-yellow-500' };
     if (strength <= 75) return { strength, label: 'Tốt', color: 'bg-blue-500' };
@@ -191,7 +191,7 @@ export function SignUpView({ onSignUp, onSignIn }: SignUpViewProps) {
                   placeholder="Tối thiểu 8 ký tự"
                   required
                 />
-                
+
                 {/* Password Strength Indicator */}
                 {values.password && (
                   <div className="space-y-2">

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Transaction } from '../types/Transaction';
-import { CATEGORY_INFO, PAYMENT_METHOD_INFO } from '../constants/vietnamese';
-import { formatVND, formatCurrency } from '../utils/currency';
-import { formatDateTime } from '../utils/helpers';
+import { Transaction } from '../../types/Transaction';
+import { CATEGORY_INFO, PAYMENT_METHOD_INFO } from '../../constants/vietnamese';
+import { formatVND, formatCurrency } from '../../utils/currency';
+import { formatDateTime } from '../../utils/helpers';
 import { Clock } from 'lucide-react';
 
 interface RecentTransactionsProps {

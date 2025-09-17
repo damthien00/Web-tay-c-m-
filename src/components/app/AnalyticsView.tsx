@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { useTransactions } from '../contexts/TransactionContext';
+import { useTransactions } from '../../contexts/TransactionContext';
 import { AddTransactionModal } from './AddTransactionModal';
-import { CATEGORY_INFO } from '../constants/vietnamese';
-import { formatVND, formatCurrency } from '../utils/currency';
+import { CATEGORY_INFO } from '../../constants/vietnamese';
+import { formatVND, formatCurrency } from '../../utils/currency';
 import { PieChart, TrendingUp, TrendingDown, Calendar } from 'lucide-react';
 
 export function AnalyticsView() {
   const { transactions, getCategoryExpenses, getIncomeTotal, getExpenseTotal } = useTransactions();
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month');
   const [showAddModal, setShowAddModal] = useState(false);
-  
+
   const categoryExpenses = getCategoryExpenses();
   const totalIncome = getIncomeTotal();
   const totalExpense = getExpenseTotal();
@@ -90,7 +90,7 @@ export function AnalyticsView() {
             </div>
             <span className="font-bold text-green-600">{formatCurrency(totalIncome, true)}</span>
           </div>
-          
+
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
               <TrendingDown className="w-5 h-5 text-red-600" />
@@ -98,7 +98,7 @@ export function AnalyticsView() {
             </div>
             <span className="font-bold text-red-600">{formatCurrency(totalExpense, true)}</span>
           </div>
-          
+
           <div className="border-t pt-3">
             <div className="flex justify-between items-center">
               <span className="font-medium text-gray-800">Tỷ lệ tiết kiệm</span>
@@ -127,7 +127,7 @@ export function AnalyticsView() {
           <PieChart className="w-5 h-5 text-gray-600" />
           <h3 className="font-semibold text-gray-800">Chi tiêu theo danh mục</h3>
         </div>
-        
+
         {topCategories.length === 0 ? (
           <p className="text-center text-gray-500 py-4">Chưa có dữ liệu chi tiêu</p>
         ) : (
@@ -135,7 +135,7 @@ export function AnalyticsView() {
             {topCategories.map(([categoryKey, amount]) => {
               const category = CATEGORY_INFO[categoryKey as keyof typeof CATEGORY_INFO];
               const percentage = totalExpense > 0 ? (amount / totalExpense * 100) : 0;
-              
+
               return (
                 <div key={categoryKey} className="space-y-2">
                   <div className="flex items-center justify-between">
