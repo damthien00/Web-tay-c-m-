@@ -88,7 +88,7 @@ export function AddProjectExpenseModal({ projectId, isOpen, onClose }: AddProjec
   return (
     <>
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white w-full max-w-md rounded-2xl p-4 sm:p-6 space-y-4 sm:space-y-6 mx-2">
+        <div className="bg-white w-full max-w-md rounded-2xl p-4 sm:p-6 space-y-4 sm:space-y-6 mx-2 max-h-[90vh] flex flex-col">
           <div className="flex items-center justify-between">
             <h2 className="text-lg sm:text-xl font-bold text-gray-800">Thêm chi phí dự án</h2>
             <button
@@ -99,80 +99,82 @@ export function AddProjectExpenseModal({ projectId, isOpen, onClose }: AddProjec
             </button>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
-            <CurrencyInput
-              label="Số tiền chi phí"
-              value={values.amount}
-              onChange={(value) => setValue('amount', value)}
-              onBlur={() => setTouched('amount')}
-              error={errors.amount}
-              touched={touched.amount}
-              required
-              helpText="Số tiền chi phí cho dự án"
-            />
+	        <div className="overflow-y-auto flex-1 pr-2">
+		        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+			        <CurrencyInput
+				        label="Số tiền chi phí"
+				        value={values.amount}
+				        onChange={(value) => setValue('amount', value)}
+				        onBlur={() => setTouched('amount')}
+				        error={errors.amount}
+				        touched={touched.amount}
+				        required
+				        helpText="Số tiền chi phí cho dự án"
+			        />
 
-            <FormField
-              label="Mô tả chi phí"
-              name="description"
-              type="text"
-              value={values.description}
-              onChange={(value) => setValue('description', value)}
-              onBlur={() => setTouched('description')}
-              error={errors.description}
-              touched={touched.description}
-              placeholder="Ví dụ: Thuê developer, Mua hosting..."
-              required
-              helpText="Mô tả chi tiết về khoản chi phí này"
-            />
+			        <FormField
+				        label="Mô tả chi phí"
+				        name="description"
+				        type="text"
+				        value={values.description}
+				        onChange={(value) => setValue('description', value)}
+				        onBlur={() => setTouched('description')}
+				        error={errors.description}
+				        touched={touched.description}
+				        placeholder="Ví dụ: Thuê developer, Mua hosting..."
+				        required
+				        helpText="Mô tả chi tiết về khoản chi phí này"
+			        />
 
-            <FormField
-              label="Danh mục chi phí"
-              name="category"
-              type="select"
-              value={values.category}
-              onChange={(value) => setValue('category', value)}
-              onBlur={() => setTouched('category')}
-              error={errors.category}
-              touched={touched.category}
-              required
-              options={Object.entries(EXPENSE_CATEGORIES).map(([key, cat]) => ({
-                value: key,
-                label: `${cat.icon} ${cat.name}`
-              }))}
-            />
+			        <FormField
+				        label="Danh mục chi phí"
+				        name="category"
+				        type="select"
+				        value={values.category}
+				        onChange={(value) => setValue('category', value)}
+				        onBlur={() => setTouched('category')}
+				        error={errors.category}
+				        touched={touched.category}
+				        required
+				        options={Object.entries(EXPENSE_CATEGORIES).map(([key, cat]) => ({
+					        value: key,
+					        label: `${cat.icon} ${cat.name}`
+				        }))}
+			        />
 
-            <FormField
-              label="Ngày chi phí"
-              name="date"
-              type="date"
-              value={values.date}
-              onChange={(value) => setValue('date', value)}
-              onBlur={() => setTouched('date')}
-              error={errors.date}
-              touched={touched.date}
-              required
-            />
+			        <FormField
+				        label="Ngày chi phí"
+				        name="date"
+				        type="date"
+				        value={values.date}
+				        onChange={(value) => setValue('date', value)}
+				        onBlur={() => setTouched('date')}
+				        error={errors.date}
+				        touched={touched.date}
+				        required
+			        />
 
-            <div className="flex space-x-3">
-              <button
-                type="button"
-                onClick={handleClose}
-                disabled={isSubmitting}
-                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50 text-sm sm:text-base"
-              >
-                Hủy
-              </button>
-              <LoadingButton
-                type="submit"
-                isLoading={isSubmitting}
-                disabled={!isValid}
-                variant="danger"
-                className="flex-1"
-              >
-                {isSubmitting ? 'Đang thêm...' : 'Thêm chi phí'}
-              </LoadingButton>
-            </div>
-          </form>
+			        <div className="flex space-x-3">
+				        <button
+					        type="button"
+					        onClick={handleClose}
+					        disabled={isSubmitting}
+					        className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50 text-sm sm:text-base"
+				        >
+					        Hủy
+				        </button>
+				        <LoadingButton
+					        type="submit"
+					        isLoading={isSubmitting}
+					        disabled={!isValid}
+					        variant="danger"
+					        className="flex-1"
+				        >
+					        {isSubmitting ? 'Đang thêm...' : 'Thêm chi phí'}
+				        </LoadingButton>
+			        </div>
+		        </form>
+	        </div>
         </div>
       </div>
 

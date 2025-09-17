@@ -91,7 +91,7 @@ export function AddProjectRevenueModal({ projectId, isOpen, onClose }: AddProjec
   return (
     <>
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white w-full max-w-md rounded-2xl p-4 sm:p-6 space-y-4 sm:space-y-6 mx-2">
+        <div className="bg-white w-full max-w-md rounded-2xl p-4 sm:p-6 space-y-4 sm:space-y-6 mx-2 max-h-[90vh] flex flex-col">
           <div className="flex items-center justify-between">
             <h2 className="text-lg sm:text-xl font-bold text-gray-800">Thêm doanh thu dự án</h2>
             <button
@@ -102,140 +102,142 @@ export function AddProjectRevenueModal({ projectId, isOpen, onClose }: AddProjec
             </button>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
-            <CurrencyInput
-              label="Số tiền doanh thu"
-              value={values.amount}
-              onChange={(value) => setValue('amount', value)}
-              onBlur={() => setTouched('amount')}
-              error={errors.amount}
-              touched={touched.amount}
-              required
-              helpText="Số tiền doanh thu từ dự án"
-            />
+	        <div className="overflow-y-auto flex-1 pr-2">
+		        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+			        <CurrencyInput
+				        label="Số tiền doanh thu"
+				        value={values.amount}
+				        onChange={(value) => setValue('amount', value)}
+				        onBlur={() => setTouched('amount')}
+				        error={errors.amount}
+				        touched={touched.amount}
+				        required
+				        helpText="Số tiền doanh thu từ dự án"
+			        />
 
-            <FormField
-              label="Mô tả doanh thu"
-              name="description"
-              type="text"
-              value={values.description}
-              onChange={(value) => setValue('description', value)}
-              onBlur={() => setTouched('description')}
-              error={errors.description}
-              touched={touched.description}
-              placeholder="Ví dụ: Thanh toán giai đoạn 1, Hoa hồng bán hàng..."
-              required
-              helpText="Mô tả chi tiết về khoản doanh thu này"
-            />
+			        <FormField
+				        label="Mô tả doanh thu"
+				        name="description"
+				        type="text"
+				        value={values.description}
+				        onChange={(value) => setValue('description', value)}
+				        onBlur={() => setTouched('description')}
+				        error={errors.description}
+				        touched={touched.description}
+				        placeholder="Ví dụ: Thanh toán giai đoạn 1, Hoa hồng bán hàng..."
+				        required
+				        helpText="Mô tả chi tiết về khoản doanh thu này"
+			        />
 
-            <FormField
-              label="Nguồn doanh thu"
-              name="source"
-              type="select"
-              value={values.source}
-              onChange={(value) => setValue('source', value)}
-              onBlur={() => setTouched('source')}
-              error={errors.source}
-              touched={touched.source}
-              required
-              options={Object.entries(REVENUE_SOURCES).map(([key, source]) => ({
-                value: key,
-                label: `${source.icon} ${source.name}`
-              }))}
-            />
+			        <FormField
+				        label="Nguồn doanh thu"
+				        name="source"
+				        type="select"
+				        value={values.source}
+				        onChange={(value) => setValue('source', value)}
+				        onBlur={() => setTouched('source')}
+				        error={errors.source}
+				        touched={touched.source}
+				        required
+				        options={Object.entries(REVENUE_SOURCES).map(([key, source]) => ({
+					        value: key,
+					        label: `${source.icon} ${source.name}`
+				        }))}
+			        />
 
-            <FormField
-              label="Trạng thái thanh toán"
-              name="status"
-              type="select"
-              value={values.status}
-              onChange={(value) => setValue('status', value)}
-              onBlur={() => setTouched('status')}
-              error={errors.status}
-              touched={touched.status}
-              required
-              options={[
-                { value: 'received', label: '✅ Đã nhận' },
-                { value: 'pending', label: '⏳ Chờ thanh toán' },
-                { value: 'overdue', label: '⚠️ Quá hạn' }
-              ]}
-            />
+			        <FormField
+				        label="Trạng thái thanh toán"
+				        name="status"
+				        type="select"
+				        value={values.status}
+				        onChange={(value) => setValue('status', value)}
+				        onBlur={() => setTouched('status')}
+				        error={errors.status}
+				        touched={touched.status}
+				        required
+				        options={[
+					        { value: 'received', label: '✅ Đã nhận' },
+					        { value: 'pending', label: '⏳ Chờ thanh toán' },
+					        { value: 'overdue', label: '⚠️ Quá hạn' }
+				        ]}
+			        />
 
-            {/* Paid Amount */}
-            {values.status !== 'received' && (
-              <CurrencyInput
-                label="Số tiền đã nhận (nếu có)"
-                value={values.paidAmount}
-                onChange={(value) => setValue('paidAmount', value)}
-                onBlur={() => setTouched('paidAmount')}
-                error={errors.paidAmount}
-                touched={touched.paidAmount}
-                placeholder="Ví dụ: 50% đã nhận trước"
-                helpText="Để trống nếu chưa nhận gì"
-              />
-            )}
+			        {/* Paid Amount */}
+			        {values.status !== 'received' && (
+				        <CurrencyInput
+					        label="Số tiền đã nhận (nếu có)"
+					        value={values.paidAmount}
+					        onChange={(value) => setValue('paidAmount', value)}
+					        onBlur={() => setTouched('paidAmount')}
+					        error={errors.paidAmount}
+					        touched={touched.paidAmount}
+					        placeholder="Ví dụ: 50% đã nhận trước"
+					        helpText="Để trống nếu chưa nhận gì"
+				        />
+			        )}
 
-            {/* Invoice Number */}
-            <FormField
-              label="Số hóa đơn (tùy chọn)"
-              name="invoiceNumber"
-              type="text"
-              value={values.invoiceNumber}
-              onChange={(value) => setValue('invoiceNumber', value)}
-              onBlur={() => setTouched('invoiceNumber')}
-              error={errors.invoiceNumber}
-              touched={touched.invoiceNumber}
-              placeholder="Ví dụ: INV-001, HD-2025-001"
-              helpText="Số hóa đơn để dễ theo dõi"
-            />
+			        {/* Invoice Number */}
+			        <FormField
+				        label="Số hóa đơn (tùy chọn)"
+				        name="invoiceNumber"
+				        type="text"
+				        value={values.invoiceNumber}
+				        onChange={(value) => setValue('invoiceNumber', value)}
+				        onBlur={() => setTouched('invoiceNumber')}
+				        error={errors.invoiceNumber}
+				        touched={touched.invoiceNumber}
+				        placeholder="Ví dụ: INV-001, HD-2025-001"
+				        helpText="Số hóa đơn để dễ theo dõi"
+			        />
 
-            {/* Due Date for pending/overdue */}
-            {values.status !== 'received' && (
-              <FormField
-                label="Ngày đến hạn thanh toán"
-                name="dueDate"
-                type="date"
-                value={values.dueDate}
-                onChange={(value) => setValue('dueDate', value)}
-                onBlur={() => setTouched('dueDate')}
-                error={errors.dueDate}
-                touched={touched.dueDate}
-                helpText="Ngày khách hàng cần thanh toán"
-              />
-            )}
+			        {/* Due Date for pending/overdue */}
+			        {values.status !== 'received' && (
+				        <FormField
+					        label="Ngày đến hạn thanh toán"
+					        name="dueDate"
+					        type="date"
+					        value={values.dueDate}
+					        onChange={(value) => setValue('dueDate', value)}
+					        onBlur={() => setTouched('dueDate')}
+					        error={errors.dueDate}
+					        touched={touched.dueDate}
+					        helpText="Ngày khách hàng cần thanh toán"
+				        />
+			        )}
 
-            <FormField
-              label="Ngày doanh thu"
-              name="date"
-              type="date"
-              value={values.date}
-              onChange={(value) => setValue('date', value)}
-              onBlur={() => setTouched('date')}
-              error={errors.date}
-              touched={touched.date}
-              required
-            />
+			        <FormField
+				        label="Ngày doanh thu"
+				        name="date"
+				        type="date"
+				        value={values.date}
+				        onChange={(value) => setValue('date', value)}
+				        onBlur={() => setTouched('date')}
+				        error={errors.date}
+				        touched={touched.date}
+				        required
+			        />
 
-            <div className="flex space-x-3">
-              <button
-                type="button"
-                onClick={handleClose}
-                disabled={isSubmitting}
-                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50 text-sm sm:text-base"
-              >
-                Hủy
-              </button>
-              <LoadingButton
-                type="submit"
-                isLoading={isSubmitting}
-                disabled={!isValid}
-                variant="success"
-                className="flex-1"
-              >
-                {isSubmitting ? 'Đang thêm...' : 'Thêm doanh thu'}
-              </LoadingButton>
-            </div>
-          </form>
+			        <div className="flex space-x-3">
+				        <button
+					        type="button"
+					        onClick={handleClose}
+					        disabled={isSubmitting}
+					        className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50 text-sm sm:text-base"
+				        >
+					        Hủy
+				        </button>
+				        <LoadingButton
+					        type="submit"
+					        isLoading={isSubmitting}
+					        disabled={!isValid}
+					        variant="success"
+					        className="flex-1"
+				        >
+					        {isSubmitting ? 'Đang thêm...' : 'Thêm doanh thu'}
+				        </LoadingButton>
+			        </div>
+		        </form>
+	        </div>
         </div>
       </div>
 
