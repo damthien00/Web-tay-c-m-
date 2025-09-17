@@ -57,3 +57,10 @@ This update switches the Dashboard view from local sample data to real database-
 Notes:
 - DashboardView now also derives and displays balance, income, and expense via TransactionContext helpers (computed over the cached transactions list). The analytics endpoints remain available if you need full-history totals across the entire dataset.
 - If you want full-history correctness in context, switch the fetch to a paginated list/infinite loader to hydrate more history, or compute totals server-side and store them in context.
+
+## Update (2025-09-17): Centralize Add Transaction API in TransactionContext
+
+- addTransaction(transaction) in TransactionContext now performs the API POST to /api/transactions and then refreshes state via reloadRecentTransactions().
+- AddTransactionModal no longer calls the API directly; it simply calls addTransaction with form values. This prevents code duplication and keeps API details in one place.
+- Existing consumers (e.g., useProjectIntegration) can continue to call addTransaction; it now returns a Promise<void>. You may await it or fire-and-forget.
+- Error handling: the context uses optimistic insert, then reloads from server. On failure, it reloads to revert the optimistic change and rethrows so the UI can inform the user.

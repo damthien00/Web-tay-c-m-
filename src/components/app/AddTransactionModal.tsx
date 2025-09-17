@@ -67,22 +67,27 @@ export function AddTransactionModal({ isOpen, onClose }: AddTransactionModalProp
   const onSubmit = async (formValues: typeof initialValues) => {
     const parsedAmount = parseVND(formValues.amount);
 
-    // Simulate API delay for better UX demonstration
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // Optional small delay for smoother UX
+    await new Promise(resolve => setTimeout(resolve, 300));
 
-    addTransaction({
-      type: formValues.type,
-      amount: parsedAmount,
-      category: formValues.category,
-      description: formValues.description.trim(),
-      paymentMethod: formValues.paymentMethod,
-    });
+    try {
+      await addTransaction({
+        type: formValues.type,
+        amount: parsedAmount,
+        category: formValues.category,
+        description: formValues.description.trim(),
+        paymentMethod: formValues.paymentMethod,
+      });
 
-    setShowSuccess(true);
-    setTimeout(() => {
-      onClose();
-      setShowSuccess(false);
-    }, 1500);
+      setShowSuccess(true);
+      setTimeout(() => {
+        onClose();
+        setShowSuccess(false);
+      }, 1200);
+    } catch (e) {
+      console.error(e);
+      alert('Có lỗi xảy ra khi thêm giao dịch. Vui lòng thử lại.');
+    }
   };
 
   const handleClose = () => {
