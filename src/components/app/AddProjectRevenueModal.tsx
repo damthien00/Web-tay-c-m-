@@ -62,8 +62,6 @@ export function AddProjectRevenueModal({ projectId, isOpen, onClose }: AddProjec
   const onSubmit = async (formValues: typeof initialValues) => {
     const parsedAmount = parseVND(formValues.amount);
 
-    await new Promise(resolve => setTimeout(resolve, 500));
-
     addRevenue({
 	    paidAmount: 0,
 	    projectId,

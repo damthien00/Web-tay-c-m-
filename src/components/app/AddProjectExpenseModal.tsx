@@ -61,8 +61,6 @@ export function AddProjectExpenseModal({ projectId, isOpen, onClose }: AddProjec
   const onSubmit = async (formValues: typeof initialValues) => {
     const parsedAmount = parseVND(formValues.amount);
 
-    await new Promise(resolve => setTimeout(resolve, 500));
-
     addExpense({
       projectId,
       amount: parsedAmount,

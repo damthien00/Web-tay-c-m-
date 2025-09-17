@@ -60,9 +60,6 @@ export function AddToGoalModal({ goalId, isOpen, onClose }: AddToGoalModalProps)
   const onSubmit = async (formValues: typeof initialValues) => {
     const parsedAmount = parseVND(formValues.amount);
 
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-
     addToGoal(goalId, parsedAmount);
 
     setShowSuccess(true);

@@ -67,9 +67,6 @@ export function AddTransactionModal({ isOpen, onClose }: AddTransactionModalProp
   const onSubmit = async (formValues: typeof initialValues) => {
     const parsedAmount = parseVND(formValues.amount);
 
-    // Optional small delay for smoother UX
-    await new Promise(resolve => setTimeout(resolve, 300));
-
     try {
       await addTransaction({
         type: formValues.type,

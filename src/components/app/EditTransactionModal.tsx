@@ -78,9 +78,6 @@ export function EditTransactionModal({ transaction, isOpen, onClose }: EditTrans
   const onSubmit = async (formValues: typeof initialValues) => {
     const parsedAmount = parseVND(formValues.amount);
 
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 600));
-
     try {
       await updateTransaction(transaction.id, {
         type: formValues.type,

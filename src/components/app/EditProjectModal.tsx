@@ -94,9 +94,6 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
   }, [project, isOpen, setValue]);
 
   const onSubmit = async (formValues: typeof initialValues) => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 800));
-
     updateProject(project.id, {
       name: formValues.name.trim(),
       description: formValues.description.trim(),

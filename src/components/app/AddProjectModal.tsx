@@ -79,9 +79,6 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
   } = useFormValidation(initialValues, validationRules);
 
   const onSubmit = async (formValues: typeof initialValues) => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 800));
-
     await addProject({
       name: formValues.name.trim(),
       description: formValues.description.trim(),
