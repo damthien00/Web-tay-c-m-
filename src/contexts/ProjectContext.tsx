@@ -260,14 +260,14 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
   const addRevenue = (revenue: Omit<ProjectRevenue, 'id' | 'createdAt'>) => {
     // Optimistic insert
-    const temp: ProjectRevenue = {
+    const processedData: ProjectRevenue = {
       ...revenue,
       id: `temp-${generateId()}`,
       paidAmount: revenue.status === 'received' ? revenue.amount : (revenue.paidAmount ?? 0),
       createdAt: new Date().toISOString(),
     };
-    setRevenues(prev => [temp, ...prev]);
-    // bump project total revenue locally if received
+
+    setRevenues(prev => [processedData, ...prev]);
     setProjects(prev => prev.map(p => (p.id === revenue.projectId ? { ...p, totalRevenue: (p.totalRevenue || 0) + revenue.amount } : p)));
 
     (async () => {
@@ -279,15 +279,15 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: uid,
-            projectId: revenue.projectId,
-            amount: revenue.amount,
-            description: revenue.description,
-            source: revenue.source,
-            status: revenue.status,
-            paidAmount: revenue.paidAmount ?? undefined,
-            invoiceNumber: revenue.invoiceNumber,
-            dueDate: revenue.dueDate,
-            date: revenue.date,
+            projectId: processedData.projectId,
+            amount: processedData.amount,
+            description: processedData.description,
+            source: processedData.source,
+            status: processedData.status,
+            paidAmount: processedData.paidAmount ?? undefined,
+            invoiceNumber: processedData.invoiceNumber,
+            dueDate: processedData.dueDate,
+            date: processedData.date,
           }),
         });
         const json = await res.json();
