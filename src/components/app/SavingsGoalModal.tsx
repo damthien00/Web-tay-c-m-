@@ -125,143 +125,145 @@ export function SavingsGoalModal({ isOpen, onClose }: SavingsGoalModalProps) {
   return (
     <>
       <div className="fixed inset-0 bg-black/50 flex items-end z-50">
-        <div className="bg-white w-full rounded-t-3xl p-6 space-y-6 max-h-[90vh] overflow-y-auto">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-800">Tạo mục tiêu tiết kiệm</h2>
-            <button
-              onClick={handleClose}
-              className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+	      <div className={'bg-white w-full rounded-t-3xl max-h-[90vh] overflow-y-auto'}>
+		      <div className="max-w-md mx-auto p-6 space-y-6">
+			      <div className="flex items-center justify-between">
+				      <h2 className="text-xl font-bold text-gray-800">Tạo mục tiêu tiết kiệm</h2>
+				      <button
+					      onClick={handleClose}
+					      className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+				      >
+					      <X className="w-5 h-5" />
+				      </button>
+			      </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Goal Title */}
-            <FormField
-              label="Tên mục tiêu"
-              name="title"
-              type="text"
-              value={values.title}
-              onChange={(value) => setValue('title', value)}
-              onBlur={() => setTouched('title')}
-              error={errors.title}
-              touched={touched.title}
-              placeholder="Ví dụ: Mua xe máy mới, Du lịch Phú Quốc..."
-              required
-              helpText="Tên mục tiêu rõ ràng, dễ nhớ (3-50 ký tự)"
-            />
+			      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+				      {/* Goal Title */}
+				      <FormField
+					      label="Tên mục tiêu"
+					      name="title"
+					      type="text"
+					      value={values.title}
+					      onChange={(value) => setValue('title', value)}
+					      onBlur={() => setTouched('title')}
+					      error={errors.title}
+					      touched={touched.title}
+					      placeholder="Ví dụ: Mua xe máy mới, Du lịch Phú Quốc..."
+					      required
+					      helpText="Tên mục tiêu rõ ràng, dễ nhớ (3-50 ký tự)"
+				      />
 
-            {/* Category */}
-            <FormField
-              label="Loại mục tiêu"
-              name="category"
-              type="select"
-              value={values.category}
-              onChange={(value) => setValue('category', value)}
-              onBlur={() => setTouched('category')}
-              error={errors.category}
-              touched={touched.category}
-              required
-              options={Object.entries(SAVINGS_GOAL_CATEGORIES).map(([key, cat]) => ({
-                value: key,
-                label: `${cat.icon} ${cat.name} - ${cat.description}`
-              }))}
-            />
+				      {/* Category */}
+				      <FormField
+					      label="Loại mục tiêu"
+					      name="category"
+					      type="select"
+					      value={values.category}
+					      onChange={(value) => setValue('category', value)}
+					      onBlur={() => setTouched('category')}
+					      error={errors.category}
+					      touched={touched.category}
+					      required
+					      options={Object.entries(SAVINGS_GOAL_CATEGORIES).map(([key, cat]) => ({
+						      value: key,
+						      label: `${cat.icon} ${cat.name} - ${cat.description}`
+					      }))}
+				      />
 
-            {/* Target Amount */}
-            <CurrencyInput
-              label="Số tiền mục tiêu"
-              value={values.targetAmount}
-              onChange={(value) => setValue('targetAmount', value)}
-              onBlur={() => setTouched('targetAmount')}
-              error={errors.targetAmount}
-              touched={touched.targetAmount}
-              placeholder="Ví dụ: 50tr, 100k, 5000000"
-              required
-              helpText="Số tiền bạn muốn tiết kiệm (tối thiểu 10,000₫)"
-            />
+				      {/* Target Amount */}
+				      <CurrencyInput
+					      label="Số tiền mục tiêu"
+					      value={values.targetAmount}
+					      onChange={(value) => setValue('targetAmount', value)}
+					      onBlur={() => setTouched('targetAmount')}
+					      error={errors.targetAmount}
+					      touched={touched.targetAmount}
+					      placeholder="Ví dụ: 50tr, 100k, 5000000"
+					      required
+					      helpText="Số tiền bạn muốn tiết kiệm (tối thiểu 10,000₫)"
+				      />
 
-            {/* Deadline */}
-            <FormField
-              label="Thời hạn"
-              name="deadline"
-              type="date"
-              value={values.deadline}
-              onChange={(value) => setValue('deadline', value)}
-              onBlur={() => setTouched('deadline')}
-              error={errors.deadline}
-              touched={touched.deadline}
-              required
-              helpText={getDeadlineHelpText()}
-            />
+				      {/* Deadline */}
+				      <FormField
+					      label="Thời hạn"
+					      name="deadline"
+					      type="date"
+					      value={values.deadline}
+					      onChange={(value) => setValue('deadline', value)}
+					      onBlur={() => setTouched('deadline')}
+					      error={errors.deadline}
+					      touched={touched.deadline}
+					      required
+					      helpText={getDeadlineHelpText()}
+				      />
 
-            {/* Goal Preview */}
-            {values.title && values.targetAmount && values.deadline && !errors.title && !errors.targetAmount && !errors.deadline && (
-              <div className="bg-green-50 border border-green-200 rounded-xl p-4 animate-in slide-in-from-top-1 duration-300">
-                <h4 className="font-semibold text-green-800 mb-2">Xem trước mục tiêu</h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-green-700">Tên:</span>
-                    <span className="font-medium text-green-800">{values.title}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-green-700">Mục tiêu:</span>
-                    <span className="font-medium text-green-800">{parseVND(values.targetAmount).toLocaleString('vi-VN')}₫</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-green-700">Thời hạn:</span>
-                    <span className="font-medium text-green-800">
+				      {/* Goal Preview */}
+				      {values.title && values.targetAmount && values.deadline && !errors.title && !errors.targetAmount && !errors.deadline && (
+					      <div className="bg-green-50 border border-green-200 rounded-xl p-4 animate-in slide-in-from-top-1 duration-300">
+						      <h4 className="font-semibold text-green-800 mb-2">Xem trước mục tiêu</h4>
+						      <div className="space-y-2 text-sm">
+							      <div className="flex justify-between">
+								      <span className="text-green-700">Tên:</span>
+								      <span className="font-medium text-green-800">{values.title}</span>
+							      </div>
+							      <div className="flex justify-between">
+								      <span className="text-green-700">Mục tiêu:</span>
+								      <span className="font-medium text-green-800">{parseVND(values.targetAmount).toLocaleString('vi-VN')}₫</span>
+							      </div>
+							      <div className="flex justify-between">
+								      <span className="text-green-700">Thời hạn:</span>
+								      <span className="font-medium text-green-800">
                       {new Date(values.deadline).toLocaleDateString('vi-VN')}
                     </span>
-                  </div>
-                </div>
-              </div>
-            )}
+							      </div>
+						      </div>
+					      </div>
+				      )}
 
-            {/* Submit Button */}
-            <div className="flex space-x-3">
-              <button
-                type="button"
-                onClick={handleClose}
-                disabled={isSubmitting}
-                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50"
-              >
-                Hủy
-              </button>
-              <LoadingButton
-                type="submit"
-                isLoading={isSubmitting}
-                disabled={!isValid}
-                variant="success"
-                className="flex-1"
-              >
-                {isSubmitting ? 'Đang tạo...' : 'Tạo mục tiêu'}
-              </LoadingButton>
-            </div>
-          </form>
+				      {/* Submit Button */}
+				      <div className="flex space-x-3">
+					      <button
+						      type="button"
+						      onClick={handleClose}
+						      disabled={isSubmitting}
+						      className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50"
+					      >
+						      Hủy
+					      </button>
+					      <LoadingButton
+						      type="submit"
+						      isLoading={isSubmitting}
+						      disabled={!isValid}
+						      variant="success"
+						      className="flex-1"
+					      >
+						      {isSubmitting ? 'Đang tạo...' : 'Tạo mục tiêu'}
+					      </LoadingButton>
+				      </div>
+			      </form>
 
-          {/* Form Progress */}
-          <div className="flex items-center justify-center space-x-2">
-            <div className="flex space-x-1">
-              {['title', 'targetAmount', 'deadline'].map((field) => (
-                <div
-                  key={field}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    touched[field] && !errors[field] && values[field]
-                      ? 'bg-green-500 scale-110'
-                      : touched[field] && errors[field]
-                      ? 'bg-red-500'
-                      : 'bg-gray-300'
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="text-xs text-gray-500">
+			      {/* Form Progress */}
+			      <div className="flex items-center justify-center space-x-2">
+				      <div className="flex space-x-1">
+					      {['title', 'targetAmount', 'deadline'].map((field) => (
+						      <div
+							      key={field}
+							      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+								      touched[field] && !errors[field] && values[field]
+									      ? 'bg-green-500 scale-110'
+									      : touched[field] && errors[field]
+										      ? 'bg-red-500'
+										      : 'bg-gray-300'
+							      }`}
+						      />
+					      ))}
+				      </div>
+				      <span className="text-xs text-gray-500">
               {Object.keys(touched).filter(key => touched[key] && !errors[key] && values[key]).length}/3 hoàn thành
             </span>
-          </div>
-        </div>
+			      </div>
+		      </div>
+	      </div>
       </div>
 
       <SuccessNotification

@@ -173,7 +173,7 @@ export function SignInView({ onSignIn, onForgotPassword, onSignUp }: SignInViewP
             </form>
 
             {/* Divider */}
-            <div className="my-6 flex items-center">
+            <div className="my-6 flex items-center hidden ">
               <div className="flex-1 border-t border-gray-200"></div>
               <span className="px-4 text-sm text-gray-500">hoặc</span>
               <div className="flex-1 border-t border-gray-200"></div>
@@ -182,7 +182,7 @@ export function SignInView({ onSignIn, onForgotPassword, onSignUp }: SignInViewP
             {/* Biometric Sign In (Demo) */}
             <button
               type="button"
-              className="w-full flex items-center justify-center space-x-3 p-4 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+              className="hidden w-full flex items-center justify-center space-x-3 p-4 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
             >
               <Smartphone className="w-5 h-5 text-gray-600" />
               <span className="text-gray-700 font-medium">Đăng nhập bằng sinh trắc học</span>

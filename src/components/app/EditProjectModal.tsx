@@ -125,165 +125,168 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
   return (
     <>
       <div className="fixed inset-0 bg-black/50 flex items-end z-50">
-        <div className="bg-white w-full rounded-t-3xl p-4 sm:p-6 space-y-4 sm:space-y-6 max-h-[90vh] overflow-y-auto">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-800">Chỉnh sửa dự án</h2>
-            <button
-              onClick={handleClose}
-              className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+	      <div className={'bg-white w-full rounded-t-3xl max-h-[90vh] overflow-y-auto'}>
+		      <div className="max-w-md mx-auto p-6 space-y-6">
+			      <div className="flex items-center justify-between">
+				      <h2 className="text-lg sm:text-xl font-bold text-gray-800">Chỉnh sửa dự án</h2>
+				      <button
+					      onClick={handleClose}
+					      className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+				      >
+					      <X className="w-5 h-5" />
+				      </button>
+			      </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
-            {/* Project Name */}
-            <FormField
-              label="Tên dự án"
-              name="name"
-              type="text"
-              value={values.name}
-              onChange={(value) => setValue('name', value)}
-              onBlur={() => setTouched('name')}
-              error={errors.name}
-              touched={touched.name}
-              placeholder="Ví dụ: Website bán hàng cho ABC Store"
-              required
-              helpText="Tên dự án rõ ràng, dễ nhận biết (3-100 ký tự)"
-            />
+			      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+				      {/* Project Name */}
+				      <FormField
+					      label="Tên dự án"
+					      name="name"
+					      type="text"
+					      value={values.name}
+					      onChange={(value) => setValue('name', value)}
+					      onBlur={() => setTouched('name')}
+					      error={errors.name}
+					      touched={touched.name}
+					      placeholder="Ví dụ: Website bán hàng cho ABC Store"
+					      required
+					      helpText="Tên dự án rõ ràng, dễ nhận biết (3-100 ký tự)"
+				      />
 
-            {/* Description */}
-            <FormField
-              label="Mô tả dự án"
-              name="description"
-              type="textarea"
-              value={values.description}
-              onChange={(value) => setValue('description', value)}
-              onBlur={() => setTouched('description')}
-              error={errors.description}
-              touched={touched.description}
-              placeholder="Mô tả chi tiết về dự án, mục tiêu và phạm vi công việc..."
-              required
-              helpText="Mô tả chi tiết về dự án (10-500 ký tự)"
-              rows={4}
-            />
+				      {/* Description */}
+				      <FormField
+					      label="Mô tả dự án"
+					      name="description"
+					      type="textarea"
+					      value={values.description}
+					      onChange={(value) => setValue('description', value)}
+					      onBlur={() => setTouched('description')}
+					      error={errors.description}
+					      touched={touched.description}
+					      placeholder="Mô tả chi tiết về dự án, mục tiêu và phạm vi công việc..."
+					      required
+					      helpText="Mô tả chi tiết về dự án (10-500 ký tự)"
+					      rows={4}
+				      />
 
-            {/* Category */}
-            <FormField
-              label="Loại dự án"
-              name="category"
-              type="select"
-              value={values.category}
-              onChange={(value) => setValue('category', value)}
-              onBlur={() => setTouched('category')}
-              error={errors.category}
-              touched={touched.category}
-              required
-              options={Object.entries(PROJECT_CATEGORIES).map(([key, cat]) => ({
-                value: key,
-                label: `${cat.icon} ${cat.name}`
-              }))}
-            />
+				      {/* Category */}
+				      <FormField
+					      label="Loại dự án"
+					      name="category"
+					      type="select"
+					      value={values.category}
+					      onChange={(value) => setValue('category', value)}
+					      onBlur={() => setTouched('category')}
+					      error={errors.category}
+					      touched={touched.category}
+					      required
+					      options={Object.entries(PROJECT_CATEGORIES).map(([key, cat]) => ({
+						      value: key,
+						      label: `${cat.icon} ${cat.name}`
+					      }))}
+				      />
 
-            {/* Budget */}
-            <CurrencyInput
-              label="Ngân sách dự án"
-              value={values.budget}
-              onChange={(value) => setValue('budget', value)}
-              onBlur={() => setTouched('budget')}
-              error={errors.budget}
-              touched={touched.budget}
-              placeholder="Ví dụ: 50tr, 100k, 5000000"
-              required
-              helpText="Tổng ngân sách dự kiến cho dự án (tối thiểu 100,000₫)"
-            />
+				      {/* Budget */}
+				      <CurrencyInput
+					      label="Ngân sách dự án"
+					      value={values.budget}
+					      onChange={(value) => setValue('budget', value)}
+					      onBlur={() => setTouched('budget')}
+					      error={errors.budget}
+					      touched={touched.budget}
+					      placeholder="Ví dụ: 50tr, 100k, 5000000"
+					      required
+					      helpText="Tổng ngân sách dự kiến cho dự án (tối thiểu 100,000₫)"
+				      />
 
-            {/* Status */}
-            <FormField
-              label="Trạng thái"
-              name="status"
-              type="select"
-              value={values.status}
-              onChange={(value) => setValue('status', value)}
-              onBlur={() => setTouched('status')}
-              error={errors.status}
-              touched={touched.status}
-              required
-              options={[
-                { value: 'planning', label: '📋 Lên kế hoạch' },
-                { value: 'active', label: '🚀 Đang thực hiện' },
-                { value: 'on-hold', label: '⏸️ Tạm dừng' },
-                { value: 'completed', label: '✅ Hoàn thành' }
-              ]}
-            />
+				      {/* Status */}
+				      <FormField
+					      label="Trạng thái"
+					      name="status"
+					      type="select"
+					      value={values.status}
+					      onChange={(value) => setValue('status', value)}
+					      onBlur={() => setTouched('status')}
+					      error={errors.status}
+					      touched={touched.status}
+					      required
+					      options={[
+						      { value: 'planning', label: '📋 Lên kế hoạch' },
+						      { value: 'active', label: '🚀 Đang thực hiện' },
+						      { value: 'on-hold', label: '⏸️ Tạm dừng' },
+						      { value: 'completed', label: '✅ Hoàn thành' }
+					      ]}
+				      />
 
-            {/* Dates */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FormField
-                label="Ngày bắt đầu"
-                name="startDate"
-                type="date"
-                value={values.startDate}
-                onChange={(value) => setValue('startDate', value)}
-                onBlur={() => setTouched('startDate')}
-                error={errors.startDate}
-                touched={touched.startDate}
-                required
-              />
+				      {/* Dates */}
+				      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					      <FormField
+						      label="Ngày bắt đầu"
+						      name="startDate"
+						      type="date"
+						      value={values.startDate}
+						      onChange={(value) => setValue('startDate', value)}
+						      onBlur={() => setTouched('startDate')}
+						      error={errors.startDate}
+						      touched={touched.startDate}
+						      required
+					      />
 
-              <FormField
-                label="Ngày kết thúc (dự kiến)"
-                name="endDate"
-                type="date"
-                value={values.endDate}
-                onChange={(value) => setValue('endDate', value)}
-                onBlur={() => setTouched('endDate')}
-                error={errors.endDate}
-                touched={touched.endDate}
-                helpText="Có thể để trống nếu chưa xác định"
-              />
-            </div>
+					      <FormField
+						      label="Ngày kết thúc (dự kiến)"
+						      name="endDate"
+						      type="date"
+						      value={values.endDate}
+						      onChange={(value) => setValue('endDate', value)}
+						      onBlur={() => setTouched('endDate')}
+						      error={errors.endDate}
+						      touched={touched.endDate}
+						      helpText="Có thể để trống nếu chưa xác định"
+					      />
+				      </div>
 
-            {/* Currency */}
-            <FormField
-              label="Đơn vị tiền tệ"
-              name="currency"
-              type="select"
-              value={values.currency}
-              onChange={(value) => setValue('currency', value)}
-              onBlur={() => setTouched('currency')}
-              error={errors.currency}
-              touched={touched.currency}
-              required
-              options={[
-                { value: 'VND', label: '🇻🇳 Việt Nam Đồng (₫)' },
-                { value: 'USD', label: '🇺🇸 US Dollar ($)' }
-              ]}
-            />
+				      {/* Currency */}
+				      <FormField
+					      label="Đơn vị tiền tệ"
+					      name="currency"
+					      type="select"
+					      value={values.currency}
+					      onChange={(value) => setValue('currency', value)}
+					      onBlur={() => setTouched('currency')}
+					      error={errors.currency}
+					      touched={touched.currency}
+					      required
+					      options={[
+						      { value: 'VND', label: '🇻🇳 Việt Nam Đồng (₫)' },
+						      { value: 'USD', label: '🇺🇸 US Dollar ($)' }
+					      ]}
+				      />
 
-            {/* Submit Button */}
-            <div className="flex space-x-3">
-              <button
-                type="button"
-                onClick={handleClose}
-                disabled={isSubmitting}
-                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50 text-sm sm:text-base"
-              >
-                Hủy
-              </button>
-              <LoadingButton
-                type="submit"
-                isLoading={isSubmitting}
-                disabled={!isValid}
-                variant="primary"
-                className="flex-1"
-              >
-                {isSubmitting ? 'Đang cập nhật...' : 'Cập nhật dự án'}
-              </LoadingButton>
-            </div>
-          </form>
-        </div>
-      </div>
+				      {/* Submit Button */}
+				      <div className="flex space-x-3">
+					      <button
+						      type="button"
+						      onClick={handleClose}
+						      disabled={isSubmitting}
+						      className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50 text-sm sm:text-base"
+					      >
+						      Hủy
+					      </button>
+					      <LoadingButton
+						      type="submit"
+						      isLoading={isSubmitting}
+						      disabled={!isValid}
+						      variant="primary"
+						      className="flex-1"
+					      >
+						      {isSubmitting ? 'Đang cập nhật...' : 'Cập nhật dự án'}
+					      </LoadingButton>
+				      </div>
+			      </form>
+		      </div>
+	      </div>
+
+			</div>
 
       <SuccessNotification
         isVisible={showSuccess}

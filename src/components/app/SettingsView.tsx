@@ -152,7 +152,7 @@ export function SettingsView() {
         </div>
 
         {/* App Preferences */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border">
+        <div className="bg-white rounded-xl p-4 shadow-sm border hidden">
           <h3 className="font-semibold text-gray-800 mb-4">Tùy chọn ứng dụng</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -220,7 +220,7 @@ export function SettingsView() {
         {/* Language & Currency */}
 
         {/* Data Management */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border">
+        <div className="bg-white rounded-xl p-4 shadow-sm border hidden">
           <h3 className="font-semibold text-gray-800 mb-4">Quản lý dữ liệu</h3>
           <div className="space-y-3">
             <button
@@ -261,8 +261,10 @@ export function SettingsView() {
 
             <button
               onClick={async () => {
-                try { await signOut(); } catch (error) { console.error('Error signing out:', error); }
-                router.push('/auth/sign-in');
+                try {
+									await signOut();
+								} catch (error) { console.error('Error signing out:', error); }
+                router.refresh();
               }}
               className="w-full flex items-center space-x-3 p-3 text-left hover:bg-red-50 rounded-lg transition-colors text-red-600"
             >
@@ -276,7 +278,7 @@ export function SettingsView() {
         </div>
 
         {/* Support */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border">
+        <div className="bg-white rounded-xl p-4 shadow-sm border hidden">
           <h3 className="font-semibold text-gray-800 mb-4">Hỗ trợ</h3>
           <div className="space-y-3">
             <button className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors">
@@ -298,7 +300,7 @@ export function SettingsView() {
         </div>
 
         {/* Vietnamese Cultural Features */}
-        <div className="bg-gradient-to-r from-red-50 to-yellow-50 rounded-xl p-4 border border-red-200">
+        <div className="hidden bg-gradient-to-r from-red-50 to-yellow-50 rounded-xl p-4 border border-red-200">
           <h3 className="font-semibold text-red-800 mb-3">Tính năng Việt Nam 🇻🇳</h3>
           <div className="space-y-2 text-sm">
             <div className="flex items-center space-x-2">
