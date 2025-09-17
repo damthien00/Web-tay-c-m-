@@ -6,7 +6,7 @@ interface ProjectContextType {
   projects: Project[];
   expenses: ProjectExpense[];
   revenues: ProjectRevenue[];
-  addProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'totalExpenses' | 'totalRevenue'>) => void;
+  addProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'totalExpenses' | 'totalRevenue'>) => Promise<void>;
   updateProject: (id: string, project: Partial<Project>) => void;
   deleteProject: (id: string) => void;
   addExpense: (expense: Omit<ProjectExpense, 'id' | 'createdAt'>) => void;
@@ -30,311 +30,331 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [expenses, setExpenses] = useState<ProjectExpense[]>([]);
   const [revenues, setRevenues] = useState<ProjectRevenue[]>([]);
 
-  useEffect(() => {
-    // Load data from localStorage
-    const savedProjects = localStorage.getItem('vietnamese-money-tracker-projects');
-    const savedExpenses = localStorage.getItem('vietnamese-money-tracker-project-expenses');
-    const savedRevenues = localStorage.getItem('vietnamese-money-tracker-project-revenues');
+  // Helpers to load from API
+  const uid = () => (typeof window !== 'undefined' ? (localStorage.getItem('userId') || 'demo-user') : 'demo-user');
 
-    // Define sample projects outside conditional block
-    const sampleProjects: Project[] = [
-      {
-        id: generateId(),
-        name: 'Website Bán Hàng Online',
-        description: 'Phát triển website thương mại điện tử cho khách hàng',
-        budget: 50000000,
-        totalExpenses: 28000000,
-        totalRevenue: 60000000,
-        status: 'active',
-        startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-        category: 'web-development',
-        currency: 'VND',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        id: generateId(),
-        name: 'App Quản Lý Kho',
-        description: 'Ứng dụng mobile quản lý kho hàng',
-        budget: 80000000,
-        totalExpenses: 37000000,
-        totalRevenue: 70000000,
-        status: 'active',
-        startDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-        category: 'mobile-app',
-        currency: 'VND',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        id: generateId(),
-        name: 'Tư Vấn Digital Marketing',
-        description: 'Dịch vụ tư vấn marketing online cho doanh nghiệp nhỏ',
-        budget: 20000000,
-        totalExpenses: 8000000,
-        totalRevenue: 25000000,
-        status: 'completed',
-        startDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
-        endDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-        category: 'consulting',
-        currency: 'VND',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+  const reloadProjects = async () => {
+    try {
+      const res = await fetch(`/api/projects?userId=${encodeURIComponent(uid())}&per_page=100&sort=createdAt.desc`);
+      const json = await res.json();
+      const items = Array.isArray(json?.data?.items) ? json.data.items : (Array.isArray(json?.data) ? json.data : []);
+      if (Array.isArray(items)) {
+        const mapped: Project[] = items.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          description: p.description || '',
+          budget: Number(p.budget ?? 0),
+          totalExpenses: Number(p.totalExpenses ?? 0),
+          totalRevenue: Number(p.totalRevenue ?? 0),
+          status: p.status,
+          startDate: typeof p.startDate === 'string' ? p.startDate : new Date(p.startDate).toISOString(),
+          endDate: p.endDate ? (typeof p.endDate === 'string' ? p.endDate : new Date(p.endDate).toISOString()) : undefined,
+          category: p.category,
+          currency: p.currency || 'VND',
+          createdAt: typeof p.createdAt === 'string' ? p.createdAt : new Date(p.createdAt).toISOString(),
+          updatedAt: typeof p.updatedAt === 'string' ? p.updatedAt : new Date(p.updatedAt).toISOString(),
+        }));
+        setProjects(mapped);
       }
-    ];
-
-    if (savedProjects && JSON.parse(savedProjects).length > 0) {
-      setProjects(JSON.parse(savedProjects));
-    } else {
-      setProjects(sampleProjects);
+    } catch (e) {
+      console.error(e);
     }
+  };
 
-    if (savedExpenses) {
-      setExpenses(JSON.parse(savedExpenses));
+  const reloadExpenses = async () => {
+    try {
+      const res = await fetch(`/api/project-expenses?userId=${encodeURIComponent(uid())}&per_page=200&sort=date.desc`);
+      const json = await res.json();
+      const items = Array.isArray(json?.data?.items) ? json.data.items : (Array.isArray(json?.data) ? json.data : []);
+      if (Array.isArray(items)) {
+        const mapped: ProjectExpense[] = items.map((x: any) => ({
+          id: x.id,
+          projectId: x.projectId,
+          amount: Number(x.amount ?? 0),
+          description: x.description || '',
+          category: x.category,
+          date: typeof x.date === 'string' ? x.date : new Date(x.date).toISOString(),
+          createdAt: typeof x.createdAt === 'string' ? x.createdAt : new Date(x.createdAt).toISOString(),
+        }));
+        setExpenses(mapped);
+      }
+    } catch (e) {
+      console.error(e);
     }
+  };
 
-    if (savedRevenues) {
-      setRevenues(JSON.parse(savedRevenues));
-    } else {
-      // Add sample revenues
-      const sampleRevenues: ProjectRevenue[] = [
-        {
-          id: generateId(),
-          projectId: sampleProjects[0].id,
-          amount: 30000000,
-          paidAmount: 30000000,
-          description: 'Thanh toán giai đoạn 1 - Thiết kế UI/UX',
-          source: 'milestone-payment',
-          status: 'received',
-          date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-          invoiceNumber: 'INV-001',
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: generateId(),
-          projectId: sampleProjects[0].id,
-          amount: 30000000,
-          paidAmount: 0,
-          description: 'Thanh toán giai đoạn 2 - Phát triển',
-          source: 'milestone-payment',
-          status: 'pending',
-          date: new Date().toISOString(),
-          dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
-          invoiceNumber: 'INV-002',
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: generateId(),
-          projectId: sampleProjects[1].id,
-          amount: 40000000,
-          paidAmount: 40000000,
-          description: 'Thanh toán đầu tiên',
-          source: 'client-payment',
-          status: 'received',
-          date: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
-          invoiceNumber: 'INV-003',
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: generateId(),
-          projectId: sampleProjects[1].id,
-          amount: 30000000,
-          paidAmount: 0,
-          description: 'Thanh toán cuối',
-          source: 'client-payment',
-          status: 'overdue',
-          date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-          dueDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          invoiceNumber: 'INV-004',
-          createdAt: new Date().toISOString(),
-        }
-      ];
-      setRevenues(sampleRevenues);
-
-      // Add sample expenses
-      const sampleExpenses: ProjectExpense[] = [
-        {
-          id: generateId(),
-          projectId: sampleProjects[0].id,
-          amount: 15000000,
-          description: 'Thuê developer React',
-          category: 'development',
-          date: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: generateId(),
-          projectId: sampleProjects[0].id,
-          amount: 8000000,
-          description: 'Thiết kế UI/UX',
-          category: 'design',
-          date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: generateId(),
-          projectId: sampleProjects[0].id,
-          amount: 5000000,
-          description: 'Hosting và domain',
-          category: 'infrastructure',
-          date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: generateId(),
-          projectId: sampleProjects[1].id,
-          amount: 25000000,
-          description: 'Developer mobile app',
-          category: 'development',
-          date: new Date(Date.now() - 50 * 24 * 60 * 60 * 1000).toISOString(),
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: generateId(),
-          projectId: sampleProjects[1].id,
-          amount: 12000000,
-          description: 'Testing và QA',
-          category: 'development',
-          date: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString(),
-          createdAt: new Date().toISOString(),
-        }
-      ];
-      setExpenses(sampleExpenses);
+  const reloadRevenues = async () => {
+    try {
+      const res = await fetch(`/api/project-revenues?userId=${encodeURIComponent(uid())}&per_page=200&sort=date.desc`);
+      const json = await res.json();
+      const items = Array.isArray(json?.data?.items) ? json.data.items : (Array.isArray(json?.data) ? json.data : []);
+      if (Array.isArray(items)) {
+        const mapped: ProjectRevenue[] = items.map((x: any) => ({
+          id: x.id,
+          projectId: x.projectId,
+          amount: Number(x.amount ?? 0),
+          description: x.description || '',
+          source: x.source,
+          date: typeof x.date === 'string' ? x.date : new Date(x.date).toISOString(),
+          status: x.status,
+          paidAmount: Number(x.paidAmount ?? 0),
+          invoiceNumber: x.invoiceNumber || undefined,
+          dueDate: x.dueDate ? (typeof x.dueDate === 'string' ? x.dueDate : new Date(x.dueDate).toISOString()) : undefined,
+          createdAt: typeof x.createdAt === 'string' ? x.createdAt : new Date(x.createdAt).toISOString(),
+        }));
+        setRevenues(mapped);
+      }
+    } catch (e) {
+      console.error(e);
     }
+  };
+
+  const reloadAll = async () => {
+    await Promise.all([reloadProjects(), reloadExpenses(), reloadRevenues()]);
+  };
+
+  // Initial hydration: cache → server
+  useEffect(() => {
+    let isMounted = true;
+    try {
+      const p = localStorage.getItem('vietnamese-money-tracker-projects');
+      if (p) {
+        const parsed = JSON.parse(p);
+        if (Array.isArray(parsed) && parsed.length > 0) setProjects(parsed);
+      }
+      const e = localStorage.getItem('vietnamese-money-tracker-project-expenses');
+      if (e) {
+        const parsed = JSON.parse(e);
+        if (Array.isArray(parsed) && parsed.length > 0) setExpenses(parsed);
+      }
+      const r = localStorage.getItem('vietnamese-money-tracker-project-revenues');
+      if (r) {
+        const parsed = JSON.parse(r);
+        if (Array.isArray(parsed) && parsed.length > 0) setRevenues(parsed);
+      }
+    } catch {}
+
+    (async () => { if (isMounted) await reloadAll(); })();
+    return () => { isMounted = false };
   }, []);
 
+  // Persist caches
   useEffect(() => {
     localStorage.setItem('vietnamese-money-tracker-projects', JSON.stringify(projects));
   }, [projects]);
-
   useEffect(() => {
     localStorage.setItem('vietnamese-money-tracker-project-expenses', JSON.stringify(expenses));
   }, [expenses]);
-
   useEffect(() => {
     localStorage.setItem('vietnamese-money-tracker-project-revenues', JSON.stringify(revenues));
   }, [revenues]);
 
-  const addProject = (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'totalExpenses' | 'totalRevenue'>) => {
-    const newProject: Project = {
+  // Mutations
+  const addProject = async (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'totalExpenses' | 'totalRevenue'>) => {
+    // Optimistic insert
+    const temp: Project = {
       ...project,
-      id: generateId(),
+      id: `temp-${generateId()}`,
       totalExpenses: 0,
       totalRevenue: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    setProjects(prev => [newProject, ...prev]);
-  };
+    setProjects(prev => [temp, ...prev]);
 
-  const updateProject = (id: string, updatedProject: Partial<Project>) => {
-    setProjects(prev =>
-      prev.map(project =>
-        project.id === id
-          ? { ...project, ...updatedProject, updatedAt: new Date().toISOString() }
-          : project
-      )
-    );
-  };
-
-  const deleteProject = (id: string) => {
-    setProjects(prev => prev.filter(project => project.id !== id));
-    setExpenses(prev => prev.filter(expense => expense.projectId !== id));
-    setRevenues(prev => prev.filter(revenue => revenue.projectId !== id));
-  };
-
-  const addExpense = (expense: Omit<ProjectExpense, 'id' | 'createdAt'>) => {
-    const newExpense: ProjectExpense = {
-      ...expense,
-      id: generateId(),
-      createdAt: new Date().toISOString(),
-    };
-    setExpenses(prev => [newExpense, ...prev]);
-    
-    // Update project total expenses
-    const projectExpenses = getProjectExpenses(expense.projectId) + expense.amount;
-    updateProject(expense.projectId, { totalExpenses: projectExpenses });
-  };
-
-  const addRevenue = (revenue: Omit<ProjectRevenue, 'id' | 'createdAt'>) => {
-    const newRevenue: ProjectRevenue = {
-      ...revenue,
-      id: generateId(),
-      paidAmount: revenue.status === 'received' ? revenue.amount : 0,
-      createdAt: new Date().toISOString(),
-    };
-    setRevenues(prev => [newRevenue, ...prev]);
-    
-    // Update project total revenue
-    const projectRevenue = getProjectRevenue(revenue.projectId) + revenue.amount;
-    updateProject(revenue.projectId, { totalRevenue: projectRevenue });
-
-    // Add to general income if payment is received
-    if (revenue.status === 'received') {
-      // This will be handled by the transaction context integration
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: uid(),
+          name: project.name,
+          description: project.description,
+          budget: project.budget,
+          status: project.status,
+          startDate: project.startDate,
+          endDate: project.endDate,
+          category: project.category,
+          currency: project.currency,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to create project');
+      await reloadProjects();
+    } catch (e) {
+      console.error(e);
+      await reloadProjects();
+      throw e;
     }
   };
 
+  const updateProject = (id: string, updatedProject: Partial<Project>) => {
+    // Optimistic update
+    setProjects(prev => prev.map(p => (p.id === id ? { ...p, ...updatedProject, updatedAt: new Date().toISOString() } : p)));
+
+    (async () => {
+      try {
+        const payload: any = { userId: uid() };
+        if (updatedProject.name !== undefined) payload.name = updatedProject.name;
+        if (updatedProject.description !== undefined) payload.description = updatedProject.description;
+        if (updatedProject.budget !== undefined) payload.budget = updatedProject.budget;
+        if (updatedProject.status !== undefined) payload.status = updatedProject.status;
+        if (updatedProject.startDate !== undefined) payload.startDate = updatedProject.startDate;
+        if (updatedProject.endDate !== undefined) payload.endDate = updatedProject.endDate;
+        if (updatedProject.category !== undefined) payload.category = updatedProject.category;
+        if (updatedProject.currency !== undefined) payload.currency = updatedProject.currency;
+
+        const res = await fetch(`/api/projects/${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const json = await res.json();
+        if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to update project');
+        await reloadProjects();
+      } catch (e) {
+        console.error(e);
+        await reloadProjects();
+      }
+    })();
+  };
+
+  const deleteProject = (id: string) => {
+    // Optimistic remove
+    setProjects(prev => prev.filter(p => p.id !== id));
+    setExpenses(prev => prev.filter(x => x.projectId !== id));
+    setRevenues(prev => prev.filter(x => x.projectId !== id));
+
+    (async () => {
+      try {
+        const res = await fetch(`/api/projects/${encodeURIComponent(id)}?userId=${encodeURIComponent(uid())}`, { method: 'DELETE' });
+        const json = await res.json();
+        if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to delete project');
+        await reloadAll();
+      } catch (e) {
+        console.error(e);
+        await reloadAll();
+      }
+    })();
+  };
+
+  const addExpense = (expense: Omit<ProjectExpense, 'id' | 'createdAt'>) => {
+    // Optimistic insert
+    const temp: ProjectExpense = { ...expense, id: `temp-${generateId()}`, createdAt: new Date().toISOString() };
+    setExpenses(prev => [temp, ...prev]);
+    // bump project total locally for quick feedback
+    setProjects(prev => prev.map(p => (p.id === expense.projectId ? { ...p, totalExpenses: (p.totalExpenses || 0) + expense.amount } : p)));
+
+    (async () => {
+      try {
+        const res = await fetch('/api/project-expenses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: uid(),
+            projectId: expense.projectId,
+            amount: expense.amount,
+            description: expense.description,
+            category: expense.category,
+            date: expense.date,
+          }),
+        });
+        const json = await res.json();
+        if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to add expense');
+        // reload expenses and projects to refresh totals
+        await Promise.all([reloadExpenses(), reloadProjects()]);
+      } catch (e) {
+        console.error(e);
+        await Promise.all([reloadExpenses(), reloadProjects()]);
+      }
+    })();
+  };
+
+  const addRevenue = (revenue: Omit<ProjectRevenue, 'id' | 'createdAt'>) => {
+    // Optimistic insert
+    const temp: ProjectRevenue = {
+      ...revenue,
+      id: `temp-${generateId()}`,
+      paidAmount: revenue.status === 'received' ? revenue.amount : (revenue.paidAmount ?? 0),
+      createdAt: new Date().toISOString(),
+    };
+    setRevenues(prev => [temp, ...prev]);
+    // bump project total revenue locally if received
+    setProjects(prev => prev.map(p => (p.id === revenue.projectId ? { ...p, totalRevenue: (p.totalRevenue || 0) + revenue.amount } : p)));
+
+    (async () => {
+      try {
+        const res = await fetch('/api/project-revenues', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: uid(),
+            projectId: revenue.projectId,
+            amount: revenue.amount,
+            description: revenue.description,
+            source: revenue.source,
+            status: revenue.status,
+            paidAmount: revenue.paidAmount ?? undefined,
+            invoiceNumber: revenue.invoiceNumber,
+            dueDate: revenue.dueDate,
+            date: revenue.date,
+          }),
+        });
+        const json = await res.json();
+        if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to add revenue');
+        await Promise.all([reloadRevenues(), reloadProjects()]);
+      } catch (e) {
+        console.error(e);
+        await Promise.all([reloadRevenues(), reloadProjects()]);
+      }
+    })();
+  };
+
+  // Calculations
   const getProjectExpenses = (projectId: string): number => {
-    return expenses
-      .filter(expense => expense.projectId === projectId)
-      .reduce((total, expense) => total + expense.amount, 0);
+    return expenses.filter(exp => exp.projectId === projectId).reduce((total, exp) => total + exp.amount, 0);
   };
 
   const getProjectRevenue = (projectId: string): number => {
-    return revenues
-      .filter(revenue => revenue.projectId === projectId)
-      .reduce((total, revenue) => total + revenue.amount, 0);
+    return revenues.filter(rev => rev.projectId === projectId).reduce((total, rev) => total + rev.amount, 0);
   };
 
   const getProjectPaidRevenue = (projectId: string): number => {
-    return revenues
-      .filter(revenue => revenue.projectId === projectId)
-      .reduce((total, revenue) => total + revenue.paidAmount, 0);
+    return revenues.filter(rev => rev.projectId === projectId).reduce((total, rev) => total + (rev.paidAmount || 0), 0);
   };
 
   const getProjectUnpaidRevenue = (projectId: string): number => {
-    return revenues
-      .filter(revenue => revenue.projectId === projectId)
-      .reduce((total, revenue) => total + (revenue.amount - revenue.paidAmount), 0);
+    return revenues.filter(rev => rev.projectId === projectId).reduce((total, rev) => total + (rev.amount - (rev.paidAmount || 0)), 0);
   };
 
   const getProjectProfit = (projectId: string): number => {
     const revenue = getProjectPaidRevenue(projectId);
-    const expenses = getProjectExpenses(projectId);
-    return revenue - expenses;
+    const exp = getProjectExpenses(projectId);
+    return revenue - exp;
   };
 
   const getBudgetUtilization = (projectId: string): number => {
     const project = projects.find(p => p.id === projectId);
     if (!project || project.budget === 0) return 0;
-    
-    const expenses = getProjectExpenses(projectId);
-    return (expenses / project.budget) * 100;
+    const exp = getProjectExpenses(projectId);
+    return (exp / project.budget) * 100;
   };
 
   const getTotalPortfolioValue = () => {
     const totalRevenue = projects.reduce((sum, project) => sum + getProjectPaidRevenue(project.id), 0);
     const totalExpenses = projects.reduce((sum, project) => sum + getProjectExpenses(project.id), 0);
     const totalProfit = totalRevenue - totalExpenses;
-    
     return { totalRevenue, totalExpenses, totalProfit };
   };
 
   const getTotalPortfolioPaid = () => {
     const totalPaidRevenue = projects.reduce((sum, project) => sum + getProjectPaidRevenue(project.id), 0);
     const totalUnpaidRevenue = projects.reduce((sum, project) => sum + getProjectUnpaidRevenue(project.id), 0);
-    
     return { totalPaidRevenue, totalUnpaidRevenue };
   };
 
-  const getProfitableProjects = (): Project[] => {
-    return projects.filter(project => getProjectProfit(project.id) > 0);
-  };
-
-  const getLosingProjects = (): Project[] => {
-    return projects.filter(project => getProjectProfit(project.id) < 0);
-  };
+  const getProfitableProjects = (): Project[] => projects.filter(p => getProjectProfit(p.id) > 0);
+  const getLosingProjects = (): Project[] => projects.filter(p => getProjectProfit(p.id) < 0);
 
   return (
     <ProjectContext.Provider value={{

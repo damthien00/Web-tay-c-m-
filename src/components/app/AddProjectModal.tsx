@@ -82,7 +82,7 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    addProject({
+    await addProject({
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       budget: parseVND(formValues.budget),
