@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select";
-import { Checkbox } from "@/src/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Pagination,
   PaginationContent,
@@ -12,10 +12,10 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/src/components/ui/pagination";
-import { useMediaSelectionStore, useMediaStore } from "@/src/media-management/store";
+} from "@/components/ui/pagination";
+import { useMediaSelectionStore, useMediaStore } from "@/media-management/store";
 import { deleteMedia, deleteMedias, createMedia } from "@/actions/media/actions";
-import { uploadFile } from "@/src/lib/upload-image";
+import { uploadFile } from "@/lib/upload-image";
 import type { TMedia } from "@/actions/media/validations";
 import { toast } from "sonner";
 import { ImagePlus, Loader2, Trash2, X, Upload } from "lucide-react";

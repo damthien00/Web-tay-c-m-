@@ -1,6 +1,6 @@
 "use server"
 
-import {auth} from "@/src/lib/auth"
+import {auth} from "@/lib/auth"
 import {headers} from "next/headers"
 
 export async function me(){

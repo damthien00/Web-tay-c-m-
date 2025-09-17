@@ -1,6 +1,6 @@
 "use server";
 import {TPost, TPostWithRelations, TSearchPostSchema} from "./validations";
-import prisma from "@/src/lib/prisma";
+import prisma from "@/lib/prisma";
 import {getErrorMessage} from "@/actions/utils/utils";
 import {Prisma} from "@prisma/client";
 import PostWhereInput = Prisma.PostWhereInput;

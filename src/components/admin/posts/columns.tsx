@@ -3,7 +3,7 @@
 import * as React from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { TPost } from "@/actions/posts/validations"
-import { Button } from "@/src/components/ui/button"
+import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import {deletePost, updatePost} from "@/actions/posts/actions"
 import { toast } from "sonner"

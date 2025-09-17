@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { ColumnDef } from "@tanstack/react-table"
-import { Button } from "@/src/components/ui/button"
+import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { toast } from "sonner"
 import {Checkbox} from "@/components/ui/checkbox";

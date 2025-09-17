@@ -3,8 +3,8 @@
 import React from "react";
 import { TMedia } from "@/actions/media/validations";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import MediaBrowser from "@/src/media-management/MediaBrowser";
-import { useMediaSelectionStore } from "@/src/media-management/store";
+import MediaBrowser from "@/media-management/MediaBrowser";
+import { useMediaSelectionStore } from "@/media-management/store";
 
 export default function MediaManagement(props: {
   data: TMedia[];

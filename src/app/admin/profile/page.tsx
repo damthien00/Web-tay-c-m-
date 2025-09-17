@@ -1,4 +1,4 @@
-import ProfileForm from "@/src/app/admin/profile/form";
+import ProfileForm from "@/app/admin/profile/form";
 import {me} from "@/actions/profile/me";
 
 export default async () => {

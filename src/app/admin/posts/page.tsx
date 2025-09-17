@@ -2,7 +2,7 @@ import {getPosts} from "@/actions/posts/queries";
 import {searchPostSchema} from "@/actions/posts/validations";
 import PostList from "@/components/admin/posts/PostList";
 import Link from "next/link";
-import { Button } from "@/src/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 export default async function PostsPage({searchParams}: {
 	searchParams: Record<string, string | string[] | undefined>;

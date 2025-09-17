@@ -1,6 +1,6 @@
 "use server";
 import { User } from "@prisma/client";
-import prisma from "@/src/lib/prisma";
+import prisma from "@/lib/prisma";
 import { getErrorMessage } from "@/actions/utils/utils";
 import { TUserCreateSchema, TUserUpdateSchema } from "./validations";
 import { revalidatePath } from "next/cache";

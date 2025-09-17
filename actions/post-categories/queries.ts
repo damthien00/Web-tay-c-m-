@@ -1,6 +1,6 @@
 "use server";
 import {TPostCategory, TPostCategoryWithRelations, TSearchPostCategorySchema} from "./validations";
-import prisma from "@/src/lib/prisma";
+import prisma from "@/lib/prisma";
 import {getErrorMessage} from "@/actions/utils/utils";
 import {Prisma} from "@prisma/client";
 import PostCategoryWhereInput = Prisma.PostCategoryWhereInput;

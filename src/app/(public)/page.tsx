@@ -1,6 +1,6 @@
 "use client"
-import HomePage from "@/src/app/(public)/home-page";
-import PublicLayout from "@/src/app/(public)/public-layout";
+import HomePage from "@/app/(public)/home-page";
+import PublicLayout from "@/app/(public)/public-layout";
 
 export default () => {
 	return (

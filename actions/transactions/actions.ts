@@ -1,6 +1,6 @@
 "use server";
 import { Transaction } from "@prisma/client";
-import prisma from "@/src/lib/prisma";
+import prisma from "@/lib/prisma";
 import { getErrorMessage } from "@/actions/utils/utils";
 import { revalidatePath } from "next/cache";
 import { serializeBigInt } from "@/actions/shared/utils";

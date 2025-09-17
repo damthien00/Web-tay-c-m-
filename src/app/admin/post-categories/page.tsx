@@ -1,6 +1,6 @@
 import PostCategoryList from "@/components/admin/post-categories/PostCategoryList";
 import Link from "next/link";
-import { Button } from "@/src/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {getPostCategories} from "@/actions/post-categories/queries";
 import {searchPostCategorySchema} from "@/actions/post-categories/validations";
 

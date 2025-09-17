@@ -2,11 +2,11 @@
 
 import React from "react";
 import { TPost } from "@/actions/posts/validations";
-import { DataTable } from "@/src/components/data-table";
+import { DataTable } from "@/components/data-table";
 import { postColumns } from "./columns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PaginationState, SortingState } from "@tanstack/react-table";
-import { Button } from "@/src/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { deletePosts } from "@/actions/posts/actions";
 import { toast } from "sonner";
 

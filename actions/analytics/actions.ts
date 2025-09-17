@@ -1,5 +1,5 @@
 "use server";
-import prisma from "@/src/lib/prisma";
+import prisma from "@/lib/prisma";
 import { getErrorMessage } from "@/actions/utils/utils";
 import { serializeBigInt } from "@/actions/shared/utils";
 import { TGetTotalsByDateRangeSchema } from "./validations";

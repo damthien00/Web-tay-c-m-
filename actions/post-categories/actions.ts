@@ -1,7 +1,7 @@
 "use server";
 import {PostCategory} from "@prisma/client";
 import {getErrorMessage} from "@/actions/utils/utils";
-import prisma from "@/src/lib/prisma";
+import prisma from "@/lib/prisma";
 import {TPostCategoryCreateSchema, TPostCategoryUpdateSchema} from "./validations";
 import {revalidatePath} from "next/cache";
 

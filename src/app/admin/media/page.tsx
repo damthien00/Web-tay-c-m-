@@ -1,6 +1,6 @@
 import { getMedias } from "@/actions/media/queries";
 import { searchMediaSchema } from "@/actions/media/validations";
-import MediaManagement from "@/src/media-management/MediaManagement";
+import MediaManagement from "@/media-management/MediaManagement";
 
 export default async function MediaPage({ searchParams }: {
   searchParams: Record<string, string | string[] | undefined>

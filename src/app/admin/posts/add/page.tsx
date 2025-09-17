@@ -1,4 +1,4 @@
-import PostForm from "@/src/components/admin/posts/PostForm";
+import PostForm from "@/components/admin/posts/PostForm";
 import {getPostCategories} from "@/actions/post-categories/queries";
 
 export default async function AddPostPage() {

@@ -1,7 +1,7 @@
 "use client"
 import {DashboardView} from "@/components/app/DashboardView";
 import {NavigationBar} from "@/components/app/NavigationBar";
-import {useProjectIntegration} from "@/src/hooks/useProjectIntegration";
+import {useProjectIntegration} from "@/hooks/useProjectIntegration";
 import {useState} from "react";
 import {TransactionView} from "@/components/app/TransactionView";
 import {AnalyticsView} from "@/components/app/AnalyticsView";

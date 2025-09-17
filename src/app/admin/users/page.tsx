@@ -1,8 +1,8 @@
 import { getUsers } from "@/actions/users/queries";
 import { searchUserSchema } from "@/actions/users/validations";
-import UserList from "@/src/components/admin/users/UserList";
+import UserList from "@/components/admin/users/UserList";
 import Link from "next/link";
-import { Button } from "@/src/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 export default async function UsersPage({searchParams}: {
   searchParams: Record<string, string | string[] | undefined>;

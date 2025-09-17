@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type QuillType from "quill";
 import "quill/dist/quill.snow.css";
-import MediaManagerModal from "@/src/media-management/MediaManagerModal";
+import MediaManagerModal from "@/media-management/MediaManagerModal";
 import type { TMedia } from "@/actions/media/validations";
 
 export type QuillEditorProps = {

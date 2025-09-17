@@ -1,5 +1,5 @@
 import { getUserById } from "@/actions/users/queries";
-import UserForm from "@/src/components/admin/users/UserForm";
+import UserForm from "@/components/admin/users/UserForm";
 
 export default async function EditUserPage({ params }: { params: { id: string } }) {
   const awaitedParams = await params;

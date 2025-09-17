@@ -7,10 +7,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/src/components/ui/dialog";
-import MediaBrowser from "@/src/media-management/MediaBrowser";
+} from "@/components/ui/dialog";
+import MediaBrowser from "@/media-management/MediaBrowser";
 import type { TMedia } from "@/actions/media/validations";
-import { useMediaStore, useMediaSelectionStore } from "@/src/media-management/store";
+import { useMediaStore, useMediaSelectionStore } from "@/media-management/store";
 
 export default function MediaManagerModal(props: {
   open: boolean;

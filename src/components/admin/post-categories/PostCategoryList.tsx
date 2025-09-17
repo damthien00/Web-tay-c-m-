@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import { DataTable } from "@/src/components/data-table";
+import { DataTable } from "@/components/data-table";
 import { postCategoryColumns } from "./columns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PaginationState, SortingState } from "@tanstack/react-table";
-import { Button } from "@/src/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {TPostCategory} from "@/actions/post-categories/validations";
 import {deletePostCategories} from "@/actions/post-categories/actions";

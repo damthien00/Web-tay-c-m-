@@ -1,4 +1,4 @@
-import prisma from "@/src/lib/prisma";
+import prisma from "@/lib/prisma";
 import Link from "next/link";
 import {notFound} from "next/navigation";
 import type {Metadata} from "next";

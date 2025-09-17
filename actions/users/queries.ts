@@ -1,6 +1,6 @@
 "use server";
 import { Prisma } from "@prisma/client";
-import prisma from "@/src/lib/prisma";
+import prisma from "@/lib/prisma";
 import { getErrorMessage } from "@/actions/utils/utils";
 import { TSearchUserSchema, TUser, TUserWithRelations } from "./validations";
 import UserWhereInput = Prisma.UserWhereInput;

@@ -1,7 +1,7 @@
 import React from "react";
-import {TransactionProvider} from "@/src/contexts/TransactionContext";
-import {SavingsGoalProvider} from "@/src/contexts/SavingsGoalContext";
-import {ProjectProvider} from "@/src/contexts/ProjectContext";
+import {TransactionProvider} from "@/contexts/TransactionContext";
+import {SavingsGoalProvider} from "@/contexts/SavingsGoalContext";
+import {ProjectProvider} from "@/contexts/ProjectContext";
 
 export default function PublicLayout(props: {children: React.ReactNode}) {
 	return (

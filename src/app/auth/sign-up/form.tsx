@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input"
 import React from "react";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {SignUpSchema} from "@/src/app/auth/sign-up/validate";
+import {SignUpSchema} from "@/app/auth/sign-up/validate";
 import Link from "next/link";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {signUp} from "@/lib/auth-client";

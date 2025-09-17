@@ -2,10 +2,10 @@
 
 import React, { useMemo, useTransition, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
-import { Checkbox } from "@/src/components/ui/checkbox";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
 	TPostWithRelations,
 	postCreateSchema,
@@ -16,7 +16,7 @@ import {
 import { createPost, updatePost } from "@/actions/posts/actions";
 import { useRouter } from "next/navigation";
 import {zodResolver} from "@hookform/resolvers/zod";
-import QuillEditor from "@/src/components/quill/QuillEditor";
+import QuillEditor from "@/components/quill/QuillEditor";
 import {toast} from "sonner";
 import {TPostCategory} from "@/actions/post-categories/validations";
 import {MultiSelect} from "@/components/ui/multi-select";
