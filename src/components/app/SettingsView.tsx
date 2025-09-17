@@ -4,15 +4,43 @@ import { ProfileSetupModal } from './ProfileSetupModal';
 import { useAppStore } from '@/stores/app';
 import { useTransactions } from '@/contexts/TransactionContext';
 import { useSavingsGoals } from '@/contexts/SavingsGoalContext';
+import { useRouter } from 'next/navigation';
+import { signOut } from '@/lib/auth-client';
+import { useEffect } from 'react';
+import { getMyProfile } from '@/actions/profile/profile';
 
 export function SettingsView() {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const profile = useAppStore(s => s.profile);
+  const setProfile = useAppStore(s => s.setProfile);
   const settings = useAppStore(s => s.settings);
   const updateSettings = useAppStore(s => s.updateSettings);
   const { transactions } = useTransactions();
   const { goals } = useSavingsGoals();
+  const router = useRouter();
 
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await getMyProfile();
+        if (mounted && res.ok) {
+          setProfile({
+            fullName: res.data.fullName || '',
+            email: res.data.email || '',
+            phone: res.data.phone || '',
+            location: res.data.location || '',
+            occupation: res.data.occupation || '',
+            birthDate: res.data.birthDate || '',
+            avatar: res.data.avatar,
+          });
+        }
+      } catch (e) {
+        // ignore
+      }
+    })();
+    return () => { mounted = false };
+  }, [setProfile]);
 
   const exportData = () => {
     const payload = {
@@ -231,7 +259,13 @@ export function SettingsView() {
               </div>
             </button>
 
-            <button className="w-full flex items-center space-x-3 p-3 text-left hover:bg-red-50 rounded-lg transition-colors text-red-600">
+            <button
+              onClick={async () => {
+                try { await signOut(); } catch (error) { console.error('Error signing out:', error); }
+                router.push('/auth/sign-in');
+              }}
+              className="w-full flex items-center space-x-3 p-3 text-left hover:bg-red-50 rounded-lg transition-colors text-red-600"
+            >
               <LogOut className="w-5 h-5" />
               <div>
                 <span className="font-medium">Đăng xuất</span>
@@ -324,6 +358,13 @@ export function SettingsView() {
       {/*  }}*/}
       {/*  currentProfile={userProfile || undefined}*/}
       {/*/>*/}
+      <ProfileSetupModal
+        isOpen={showProfileModal}
+        onClose={() => {
+          setShowProfileModal(false);
+        }}
+        currentProfile={profile || undefined}
+      />
     </>
   );
 }

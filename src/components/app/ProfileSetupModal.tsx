@@ -5,6 +5,7 @@ import { FormField } from './FormField';
 import { LoadingButton } from './LoadingButton';
 import { SuccessNotification } from './SuccessNotification';
 import { useAppStore } from '@/stores/app';
+import { upsertMyProfile } from '@/actions/profile/profile';
 
 interface ProfileSetupModalProps {
   isOpen: boolean;
@@ -110,24 +111,36 @@ export function ProfileSetupModal({ isOpen, onClose, currentProfile }: ProfileSe
   } = useFormValidation(initialValues, validationRules);
 
   const onSubmit = async (formValues: typeof initialValues) => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1200));
-
-    // Save to zustand store
-    useAppStore.getState().setProfile({
-      fullName: formValues.fullName,
-      email: formValues.email,
-      phone: formValues.phone,
-      location: formValues.location,
-      occupation: formValues.occupation,
-      birthDate: formValues.birthDate,
-    });
-
-    setShowSuccess(true);
-    setTimeout(() => {
-      onClose();
-      setShowSuccess(false);
-    }, 2000);
+    try {
+      const res = await upsertMyProfile({
+        fullName: formValues.fullName,
+        email: formValues.email, // server will override with session email
+        phone: formValues.phone,
+        location: formValues.location,
+        occupation: formValues.occupation,
+        birthDate: formValues.birthDate,
+        avatar: undefined,
+      });
+      if (!res.ok) {
+        throw new Error(res.error || 'Failed to save profile');
+      }
+      useAppStore.getState().setProfile({
+        fullName: res.data.fullName,
+        email: res.data.email,
+        phone: res.data.phone,
+        location: res.data.location,
+        occupation: res.data.occupation,
+        birthDate: res.data.birthDate,
+        avatar: res.data.avatar,
+      });
+      setShowSuccess(true);
+      setTimeout(() => {
+        onClose();
+        setShowSuccess(false);
+      }, 2000);
+    } catch (e) {
+      alert('Không thể lưu hồ sơ. Vui lòng thử lại.');
+    }
   };
 
   const handleClose = () => {
