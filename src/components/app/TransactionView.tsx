@@ -4,9 +4,10 @@ import { Transaction } from '../../types/Transaction';
 import { CATEGORY_INFO, PAYMENT_METHOD_INFO } from '../../constants/vietnamese';
 import { formatVND, formatCurrency } from '../../utils/currency';
 import { formatDate } from '../../utils/helpers';
-import { Search, Filter, Plus, Trash2, Edit3 } from 'lucide-react';
+import { Search, Filter, Plus, Trash2, Edit3, Eye } from 'lucide-react';
 import { AddTransactionModal } from './AddTransactionModal';
 import { EditTransactionModal } from './EditTransactionModal';
+import { ViewTransactionModal } from './ViewTransactionModal';
 
 export function TransactionView() {
   const { transactions, deleteTransaction } = useTransactions();
@@ -14,6 +15,7 @@ export function TransactionView() {
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [viewingTransaction, setViewingTransaction] = useState<Transaction | null>(null);
 
   const filteredTransactions = transactions.filter(transaction => {
     const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -127,21 +129,30 @@ export function TransactionView() {
                           }`}>
                             {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount, true)}
                           </div>
-                          <div className="flex space-x-1">
+                          <div className="flex space-x-1 justify-end">
                             <button
-                              onClick={() => setEditingTransaction(transaction)}
-                              className="p-1 text-gray-400 hover:text-blue-600 rounded transition-colors"
+                              onClick={() => setViewingTransaction(transaction)}
+                              className="p-1 text-gray-400 hover:text-gray-700 rounded transition-colors"
+                              title="Xem chi tiết"
                             >
-                              <Edit3 className="w-4 h-4" />
+                              <Eye className="w-4 h-4" />
                             </button>
-                            <button
-                              onClick={async () => {
-                                try { await deleteTransaction(transaction.id); } catch (e) { console.error(e); }
-                              }}
-                              className="p-1 text-gray-400 hover:text-red-600 rounded transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            {/*<button*/}
+                            {/*  onClick={() => setEditingTransaction(transaction)}*/}
+                            {/*  className="p-1 text-gray-400 hover:text-blue-600 rounded transition-colors"*/}
+                            {/*  title="Chỉnh sửa"*/}
+                            {/*>*/}
+                            {/*  <Edit3 className="w-4 h-4" />*/}
+                            {/*</button>*/}
+                            {/*<button*/}
+                            {/*  onClick={async () => {*/}
+                            {/*    try { await deleteTransaction(transaction.id); } catch (e) { console.error(e); }*/}
+                            {/*  }}*/}
+                            {/*  className="p-1 text-gray-400 hover:text-red-600 rounded transition-colors"*/}
+                            {/*  title="Xóa"*/}
+                            {/*>*/}
+                            {/*  <Trash2 className="w-4 h-4" />*/}
+                            {/*</button>*/}
                           </div>
                         </div>
                       </div>
@@ -158,6 +169,14 @@ export function TransactionView() {
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
       />
+
+      {viewingTransaction && (
+        <ViewTransactionModal
+          transaction={viewingTransaction}
+          isOpen={!!viewingTransaction}
+          onClose={() => setViewingTransaction(null)}
+        />
+      )}
 
       {editingTransaction && (
         <EditTransactionModal
