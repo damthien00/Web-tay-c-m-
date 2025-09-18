@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import { useSession } from '@/lib/auth-client';
 import { Project, ProjectExpense, ProjectRevenue } from '../types/Project';
 import { generateId } from '../utils/helpers';
+import {useTransactions} from "@/contexts/TransactionContext";
 
 interface ProjectContextType {
   projects: Project[];
@@ -31,6 +32,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [expenses, setExpenses] = useState<ProjectExpense[]>([]);
   const [revenues, setRevenues] = useState<ProjectRevenue[]>([]);
   const session = useSession();
+	const { addTransaction } = useTransactions();
 
   // Helpers to load from API
   const getUid = () => session.data?.user?.id as string | undefined;
@@ -225,10 +227,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   };
 
   const addExpense = (expense: Omit<ProjectExpense, 'id' | 'createdAt'>) => {
-    // Optimistic insert
-    const temp: ProjectExpense = { ...expense, id: `temp-${generateId()}`, createdAt: new Date().toISOString() };
-    setExpenses(prev => [temp, ...prev]);
-    // bump project total locally for quick feedback
+    const processedData: ProjectExpense = { ...expense, id: `temp-${generateId()}`, createdAt: new Date().toISOString() };
+    setExpenses(prev => [processedData, ...prev]);
     setProjects(prev => prev.map(p => (p.id === expense.projectId ? { ...p, totalExpenses: (p.totalExpenses || 0) + expense.amount } : p)));
 
     (async () => {
@@ -240,16 +240,23 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: uid,
-            projectId: expense.projectId,
-            amount: expense.amount,
-            description: expense.description,
-            category: expense.category,
-            date: expense.date,
+            projectId: processedData.projectId,
+            amount: processedData.amount,
+            description: processedData.description,
+            category: processedData.category,
+            date: processedData.date,
           }),
         });
         const json = await res.json();
         if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to add expense');
-        // reload expenses and projects to refresh totals
+	      await addTransaction({
+		      type: 'expense',
+		      amount: processedData.amount,
+		      category: 'kinh-doanh',
+		      description: `Chi phí dự án: ${processedData.description}`,
+		      paymentMethod: 'chuyen-khoan',
+	      });
+				// reload expenses and projects to refresh totals
         await Promise.all([reloadExpenses(), reloadProjects()]);
       } catch (e) {
         console.error(e);
@@ -292,7 +299,14 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         });
         const json = await res.json();
         if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to add revenue');
-        await Promise.all([reloadRevenues(), reloadProjects()]);
+	      await addTransaction({
+		      type: 'income',
+		      amount: processedData.paidAmount,
+		      category: 'kinh-doanh',
+		      description: `Dự án: ${processedData.description}`,
+		      paymentMethod: 'chuyen-khoan',
+	      });
+				await Promise.all([reloadRevenues(), reloadProjects()]);
       } catch (e) {
         console.error(e);
         await Promise.all([reloadRevenues(), reloadProjects()]);

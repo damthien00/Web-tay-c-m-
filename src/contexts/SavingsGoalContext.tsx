@@ -2,13 +2,14 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import { useSession } from '@/lib/auth-client';
 import { SavingsGoal } from '../types/SavingsGoal';
 import { generateId } from '../utils/helpers';
+import {useTransactions} from "@/contexts/TransactionContext";
 
 interface SavingsGoalContextType {
   goals: SavingsGoal[];
   addGoal: (goal: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'isCompleted'>) => Promise<void>;
   updateGoal: (id: string, goal: Partial<SavingsGoal>) => void;
   deleteGoal: (id: string) => void;
-  addToGoal: (id: string, amount: number) => void;
+	addToGoal: (id: string, amount: number) => Promise<void>;
   getTotalSavings: () => number;
   getCompletedGoals: () => SavingsGoal[];
   getActiveGoals: () => SavingsGoal[];
@@ -19,6 +20,7 @@ const SavingsGoalContext = createContext<SavingsGoalContextType | undefined>(und
 export function SavingsGoalProvider({ children }: { children: ReactNode }) {
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
   const session = useSession();
+	const { addTransaction } = useTransactions();
 
   // Helper to fetch and set goals from API
   const reloadGoals = async () => {
@@ -159,37 +161,38 @@ export function SavingsGoalProvider({ children }: { children: ReactNode }) {
     })();
   };
 
-  const addToGoal = (id: string, amount: number) => {
+  const addToGoal = async (id: string, amount: number) => {
     // Optimistic local bump
     setGoals(prev =>
       prev.map(goal => (goal.id === id ? { ...goal, currentAmount: goal.currentAmount + amount } : goal))
     );
 
-    (async () => {
-      try {
-        const uid = session.data?.user?.id as string | undefined;
-        if (!uid) throw new Error('No userId available');
-        const res = await fetch('/api/savings-contributions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: uid, goalId: id, amount }),
-        });
-        const json = await res.json();
-        if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to add contribution');
-        await reloadGoals();
-      } catch (e) {
-        console.error(e);
-        await reloadGoals();
-      }
-    })();
+	  try {
+		  const uid = session.data?.user?.id as string | undefined;
+		  if (!uid) throw new Error('No userId available');
+		  const res = await fetch('/api/savings-contributions', {
+			  method: 'POST',
+			  headers: { 'Content-Type': 'application/json' },
+			  body: JSON.stringify({ userId: uid, goalId: id, amount }),
+		  });
+		  const json = await res.json();
+		  if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to add contribution');
+		  await reloadGoals();
+	  } catch (e) {
+		  console.error(e);
+		  await reloadGoals();
+	  }
 
     // Dispatch event for transaction integration (still handled by hook)
     const goal = goals.find(g => g.id === id);
     if (goal) {
-      const event = new CustomEvent('savingsGoalContribution', {
-        detail: { goalId: id, amount, goalTitle: goal.title }
-      });
-      window.dispatchEvent(event);
+	    await addTransaction({
+		    type: 'expense',
+		    amount: amount,
+		    category: 'tien-le-tet', // Using this as savings allocation category
+		    description: `Tiết kiệm: ${goal?.title}`,
+		    paymentMethod: 'chuyen-khoan',
+	    });
     }
   };
 

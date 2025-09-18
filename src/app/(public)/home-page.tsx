@@ -1,7 +1,6 @@
 "use client"
 import {DashboardView} from "@/components/app/DashboardView";
 import {NavigationBar} from "@/components/app/NavigationBar";
-import {useProjectIntegration} from "@/hooks/useProjectIntegration";
 import {useState} from "react";
 import {TransactionView} from "@/components/app/TransactionView";
 import {AnalyticsView} from "@/components/app/AnalyticsView";
@@ -12,7 +11,6 @@ import {ExpenseReportView} from "@/components/app/ExpenseReportView";
 import {ProjectsView} from "@/components/app/ProjectsView";
 
 export default function HomePage() {
-	useProjectIntegration(); // Sync project finances with general transactions
 	const [currentView, setCurrentView] = useState<
 		| 'dashboard'
 		| 'transactions'
