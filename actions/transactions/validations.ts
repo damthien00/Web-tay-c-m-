@@ -1,4 +1,4 @@
-import { Prisma, Transaction } from "@prisma/client";
+import { Prisma, Transaction, LinkedEntityType } from "@prisma/client";
 import { z } from "zod";
 import { isMongoId } from "validator";
 import {
@@ -37,6 +37,8 @@ export const transactionCreateSchema = z.object({
   tags: z.array(z.string()).default([]),
   projectId: z.string().refine(isMongoId).optional(),
   goalId: z.string().refine(isMongoId).optional(),
+  linkedType: z.nativeEnum(LinkedEntityType).optional(),
+  linkedId: z.string().refine(isMongoId).optional(),
 });
 export type TTransactionCreateSchema = z.infer<typeof transactionCreateSchema>;
 

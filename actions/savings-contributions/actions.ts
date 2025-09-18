@@ -50,7 +50,9 @@ export async function createSavingsContribution(inputs: TSavingsContributionCrea
 		  category: 'tien-le-tet', // Using this as savings allocation category
 		  description: `Tiết kiệm: ${inputs?.title}`,
 		  paymentMethod: 'chuyen-khoan',
-		  tags: []
+		  tags: [],
+      linkedType: 'savingsContribution',
+      linkedId: res.id,
 	  })
     await recomputeGoalTotals(inputs.goalId);
     revalidateSavings();

@@ -40,7 +40,9 @@ export async function createProjectExpense(inputs: TProjectExpenseCreateSchema) 
 			category: 'kinh-doanh',
 			description: `Chi phí dự án: ${inputs.description}`,
 			paymentMethod: 'chuyen-khoan',
-			tags: []
+			tags: [],
+      linkedType: 'projectExpense',
+      linkedId: res.id,
 		})
     await recomputeProjectExpenseTotal(inputs.projectId);
     revalidatePath("/projects");

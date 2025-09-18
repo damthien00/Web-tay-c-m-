@@ -141,6 +141,12 @@ enum Currency {
   USD
 }
 
+enum LinkedEntityType {
+  projectExpense
+  projectRevenue
+  savingsContribution
+}
+
 model Profile {
   // 1:1 with User, primary key equals User.id
   id         String    @id @map("_id")
@@ -175,6 +181,8 @@ model Transaction {
   goal          SavingsGoal?    @relation(fields: [goalId], references: [id])
   projectId     String?         @db.ObjectId
   project       Project?        @relation(fields: [projectId], references: [id])
+  linkedType    LinkedEntityType?
+  linkedId      String?         @db.ObjectId
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
@@ -182,6 +190,7 @@ model Transaction {
   @@index([createdAt])
   @@index([type])
   @@index([category])
+  @@index([linkedType, linkedId])
   @@map("transactions")
 }
 

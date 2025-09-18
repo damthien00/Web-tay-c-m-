@@ -1,0 +1,123 @@
+Transaction ↔ Project/Savings Sync Plan (Proposal)
+Author: Junie (AI)
+Date: 2025-09-18 23:17 (updated)
+
+Context
+- Current behavior creates a Transaction whenever you create:
+  - a ProjectExpense (actions/project-expenses/actions.ts lines 35–44)
+  - a ProjectRevenue (actions/project-revenues/actions.ts lines 39–48)
+  - a SavingsContribution (actions/savings-contributions/actions.ts lines 45–54)
+- However, updating or deleting a Transaction does not currently update/delete the connected ProjectExpense/ProjectRevenue/SavingsContribution, leading to data inconsistencies.
+- Moreover, updates/deletes on ProjectExpense/Revenue/Contribution currently do not sync back to the associated Transaction either.
+
+Key Findings (with line references)
+1) actions/transactions/actions.ts
+   - createTransaction (lines 13–43): inserts a transaction only; no link info to related entities.
+   - updateTransaction (lines 46–76): updates only the transaction; does not propagate to project expense/revenue or savings contribution.
+   - deleteTransactions (lines 78–91) and deleteTransaction (lines 93–104): delete only transactions; do not update/delete related entities.
+2) actions/project-expenses/actions.ts
+   - createProjectExpense (lines 22–53): after creating expense, it creates a transaction (lines 35–44). No durable linkage stored for later syncing.
+   - updateProjectExpense (lines 55–82) and deleteProjectExpense (lines 101–116): recompute project totals but do not update/delete the transaction created earlier.
+3) actions/project-revenues/actions.ts
+   - createProjectRevenue (lines 22–57): after creating revenue, it creates a transaction (lines 39–48) using paidAmount for tx.amount.
+   - updateProjectRevenue (lines 59–90) and deleteProjectRevenue (lines 109–124): recompute totals but do not sync to the transaction.
+4) actions/savings-contributions/actions.ts
+   - createSavingsContribution (lines 34–62): after creating contribution, it creates a transaction (lines 45–54).
+   - updateSavingsContribution (lines 64–92) and deleteSavingsContribution (lines 113–127): recompute totals but do not sync to the transaction.
+5) prisma/schema.prisma
+   - Transaction model (lines 163–186): has userId, type, amount, category, projectId?, goalId?, but no field to reference the exact linked entity (expense/revenue/contribution). This prevents reliable sync on update/delete.
+
+Decisions confirmed by you
+- On deleting a Transaction linked to a Project Revenue: delete the revenue record entirely (not just zeroing paidAmount).
+- On Transaction update: do not overwrite description/category (and revenue.source) on linked records; only adjust numeric and relation fields.
+- Backward compatibility: okay to apply sync to newly created records only (older data can be backfilled later if needed).
+
+Proposed Minimal Design
+A) Add durable linkage from Transaction to its origin entity
+   - Add fields to Transaction:
+     - linkedType: enum ["projectExpense", "projectRevenue", "savingsContribution"]
+     - linkedId: String? (@db.ObjectId) — id of the specific expense/revenue/contribution document
+   - Add indexes on (linkedType, linkedId) for efficient lookups.
+   - Rationale: Minimal schema change that avoids touching every domain model; single source of truth for linkage.
+
+B) Populate linkage at creation time
+   - createProjectExpense: after expense is created, call createTransaction with { linkedType: "projectExpense", linkedId: expense.id }.
+   - createProjectRevenue: set { linkedType: "projectRevenue", linkedId: revenue.id }, and ensure tx.amount === revenue.paidAmount.
+   - createSavingsContribution: set { linkedType: "savingsContribution", linkedId: contribution.id }.
+   - Update createTransaction signature to accept optional linkedType/linkedId and persist them.
+
+C) Sync rules when updating/deleting a Transaction
+1. Update Transaction
+   - If tx.linkedType == "projectExpense":
+     - Update ProjectExpense(id = tx.linkedId) fields ONLY:
+       - amount <- tx.amount (if changed)
+       - projectId <- tx.projectId (if changed)
+     - Do NOT overwrite expense.description or expense.category.
+     - Recompute project total expenses for affected project(s).
+   - If tx.linkedType == "projectRevenue":
+     - Update ProjectRevenue(id = tx.linkedId) fields ONLY:
+       - paidAmount <- tx.amount (transaction represents the paid portion)
+       - projectId <- tx.projectId (if changed)
+     - Do NOT overwrite revenue.description or revenue.source.
+     - Recompute project total revenue for affected project(s).
+   - If tx.linkedType == "savingsContribution":
+     - Update SavingsContribution(id = tx.linkedId) fields ONLY:
+       - amount <- tx.amount
+       - goalId <- tx.goalId (if changed)
+     - Do NOT overwrite contribution.description.
+     - Recompute goal totals and completion flag.
+   - Note: Transaction has no explicit date field besides createdAt; leave Expense.date and Revenue.date unchanged.
+
+2. Delete Transaction
+   - If tx.linkedType == "projectExpense":
+     - Delete ProjectExpense(linkedId) and recompute project total expenses.
+   - If tx.linkedType == "projectRevenue":
+     - Delete ProjectRevenue(linkedId) entirely and recompute total revenue.
+   - If tx.linkedType == "savingsContribution":
+     - Delete SavingsContribution(linkedId) and recompute goal totals/completion.
+
+D) Guardrails and edge cases
+- Unlinking: If a transaction is linked, disallow removing projectId/goalId unless we also update the linked record consistently.
+- Backward compatibility: Existing records lack linkage. New behavior applies to newly created items. Optional backfill later.
+- Partial payments for revenues: Current model supports only one paidAmount; for multiple payments, consider a separate Payment model in the future.
+
+E) Minimal Code Changes (to be implemented after approval)
+1) prisma/schema.prisma
+   - enum LinkedEntityType { projectExpense, projectRevenue, savingsContribution }
+   - model Transaction: add linkedType LinkedEntityType?, linkedId String? @db.ObjectId
+   - @@index([linkedType, linkedId])
+
+2) actions/transactions/actions.ts
+   - createTransaction: accept and store linkedType/linkedId (optional).
+   - updateTransaction: after updating tx, if linkedType present, propagate changes per rules above; recompute totals; revalidate paths.
+   - deleteTransaction: if linkedType present, cascade delete; recompute totals; revalidate paths.
+
+3) actions/project-expenses/actions.ts
+   - createProjectExpense: pass linkedType/linkedId to createTransaction using created expense.id.
+   - Optional Phase 2: also sync back to transaction on expense updates/deletes (if desired).
+
+4) actions/project-revenues/actions.ts and actions/savings-contributions/actions.ts
+   - Same pattern as expenses for create; optional Phase 2 for back-propagation if desired.
+
+F) Revalidation and recomputes
+- Keep existing recomputeProjectExpenseTotal/recomputeProjectRevenueTotal/recomputeGoalTotals helpers.
+- Call them appropriately when a transaction update/delete cascades.
+- Revalidate paths used today:
+  - Expenses/Revenues: /projects and /dashboard
+  - Savings: /savings and /dashboard
+  - Transactions: /transactions and /dashboard
+
+G) Testing/Verification Plan
+- Create a project expense -> verify transaction created and linkage set.
+- Update the transaction amount -> verify expense amount and project totalExpenses updated.
+- Delete the transaction -> verify expense is deleted and project totalExpenses updated.
+- Create a project revenue with paidAmount -> verify transaction created with that amount and linkage set.
+- Update the transaction amount -> verify revenue.paidAmount updated and totalRevenue recomputed.
+- Delete the transaction -> verify revenue record deleted and totalRevenue recomputed.
+- Create a savings contribution -> verify transaction created and linkage set.
+- Update transaction amount -> verify contribution amount/goal totals updated.
+- Delete transaction -> verify contribution deleted and goal totals updated.
+
+Notes
+- This proposal reflects your decisions and keeps changes minimal.
+- No code has been changed yet; awaiting your go-ahead to implement and run the migration.

@@ -44,7 +44,9 @@ export async function createProjectRevenue(inputs: TProjectRevenueCreateSchema) 
 		  category: 'kinh-doanh',
 		  description: `Dự án: ${inputs.description}`,
 		  paymentMethod: 'chuyen-khoan',
-		  tags: []
+		  tags: [],
+      linkedType: 'projectRevenue',
+      linkedId: res.id,
 	  })
     await recomputeProjectRevenueTotal(inputs.projectId);
     revalidatePath("/projects");
