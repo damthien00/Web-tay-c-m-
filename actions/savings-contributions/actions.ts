@@ -8,6 +8,7 @@ import {
   TSavingsContributionUpdateSchema,
   TSearchSavingsContributionSchema,
 } from "./validations";
+import {createTransaction} from "@/actions/transactions/actions";
 
 function revalidateSavings() {
   revalidatePath("/savings");
@@ -41,6 +42,16 @@ export async function createSavingsContribution(inputs: TSavingsContributionCrea
         description: inputs.description ?? undefined,
       },
     });
+	  await createTransaction({
+		  userId: inputs.userId,
+		  goalId: inputs.goalId,
+		  type: 'expense',
+		  amount: inputs.amount,
+		  category: 'tien-le-tet', // Using this as savings allocation category
+		  description: `Tiết kiệm: ${inputs?.title}`,
+		  paymentMethod: 'chuyen-khoan',
+		  tags: []
+	  })
     await recomputeGoalTotals(inputs.goalId);
     revalidateSavings();
     return { data: serializeBigInt(res), error: null } as const;

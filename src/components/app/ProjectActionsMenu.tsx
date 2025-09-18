@@ -27,6 +27,7 @@ export function ProjectActionsMenu({ project, onEdit, onComplete, onDelete, onCl
   return (
     <div
       ref={menuRef}
+      onClick={(e) => e.stopPropagation()}
       className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-48 py-1"
     >
       <button

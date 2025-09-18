@@ -8,6 +8,7 @@ import {
   TProjectRevenueUpdateSchema,
   TSearchProjectRevenueSchema,
 } from "./validations";
+import {createTransaction} from "@/actions/transactions/actions";
 
 async function recomputeProjectRevenueTotal(projectId: string) {
   const agg = await prisma.projectRevenue.aggregate({
@@ -35,6 +36,16 @@ export async function createProjectRevenue(inputs: TProjectRevenueCreateSchema) 
         date: new Date(inputs.date),
       },
     });
+	  await createTransaction({
+		  userId: inputs.userId,
+		  projectId: inputs.projectId,
+		  type: 'income',
+		  amount: inputs.paidAmount,
+		  category: 'kinh-doanh',
+		  description: `Dự án: ${inputs.description}`,
+		  paymentMethod: 'chuyen-khoan',
+		  tags: []
+	  })
     await recomputeProjectRevenueTotal(inputs.projectId);
     revalidatePath("/projects");
     revalidatePath("/dashboard");

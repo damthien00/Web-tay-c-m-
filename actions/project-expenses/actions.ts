@@ -8,6 +8,7 @@ import {
   TProjectExpenseUpdateSchema,
   TSearchProjectExpenseSchema,
 } from "./validations";
+import {createTransaction} from "@/actions/transactions/actions";
 
 async function recomputeProjectExpenseTotal(projectId: string) {
   const agg = await prisma.projectExpense.aggregate({
@@ -31,6 +32,16 @@ export async function createProjectExpense(inputs: TProjectExpenseCreateSchema) 
         date: new Date(inputs.date),
       },
     });
+		await createTransaction({
+			userId: inputs.userId,
+			projectId: inputs.projectId,
+			type: 'expense',
+			amount: inputs.amount,
+			category: 'kinh-doanh',
+			description: `Chi phí dự án: ${inputs.description}`,
+			paymentMethod: 'chuyen-khoan',
+			tags: []
+		})
     await recomputeProjectExpenseTotal(inputs.projectId);
     revalidatePath("/projects");
     revalidatePath("/dashboard");

@@ -18,6 +18,7 @@ export const savingsContributionCreateSchema = z.object({
   goalId: z.string().refine(isMongoId),
   amount: bigIntLike.refine((v) => v > 0n, { message: "Amount must be > 0" }),
   description: z.string().optional(),
+  title: z.string().optional().nullable(),
 });
 export type TSavingsContributionCreateSchema = z.infer<typeof savingsContributionCreateSchema>;
 

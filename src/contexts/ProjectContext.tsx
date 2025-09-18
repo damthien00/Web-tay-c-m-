@@ -32,7 +32,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [expenses, setExpenses] = useState<ProjectExpense[]>([]);
   const [revenues, setRevenues] = useState<ProjectRevenue[]>([]);
   const session = useSession();
-	const { addTransaction } = useTransactions();
+	const { addTransaction, reloadRecentTransactions } = useTransactions();
 
   // Helpers to load from API
   const getUid = () => session.data?.user?.id as string | undefined;
@@ -120,7 +120,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   };
 
   const reloadAll = async () => {
-    await Promise.all([reloadProjects(), reloadExpenses(), reloadRevenues()]);
+    await Promise.all([reloadProjects(), reloadExpenses(), reloadRevenues(), reloadRecentTransactions()]);
   };
 
   // Initial hydration and when auth user changes
@@ -249,15 +249,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         });
         const json = await res.json();
         if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to add expense');
-	      await addTransaction({
-		      type: 'expense',
-		      amount: processedData.amount,
-		      category: 'kinh-doanh',
-		      description: `Chi phí dự án: ${processedData.description}`,
-		      paymentMethod: 'chuyen-khoan',
-	      });
-				// reload expenses and projects to refresh totals
-        await Promise.all([reloadExpenses(), reloadProjects()]);
+        await Promise.all([reloadExpenses(), reloadProjects(), reloadRecentTransactions()]);
       } catch (e) {
         console.error(e);
         await Promise.all([reloadExpenses(), reloadProjects()]);
@@ -299,14 +291,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         });
         const json = await res.json();
         if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to add revenue');
-	      await addTransaction({
-		      type: 'income',
-		      amount: processedData.paidAmount,
-		      category: 'kinh-doanh',
-		      description: `Dự án: ${processedData.description}`,
-		      paymentMethod: 'chuyen-khoan',
-	      });
-				await Promise.all([reloadRevenues(), reloadProjects()]);
+				await Promise.all([reloadRevenues(), reloadProjects(), reloadRecentTransactions()]);
       } catch (e) {
         console.error(e);
         await Promise.all([reloadRevenues(), reloadProjects()]);

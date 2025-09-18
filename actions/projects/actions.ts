@@ -62,7 +62,12 @@ export async function updateProject(userId: string, id: string, inputs: TProject
 // Delete many
 export async function deleteProjects(userId: string, ids: string[]) {
   try {
-    const res = await prisma.project.deleteMany({ where: { id: { in: ids }, userId } });
+    const res = await prisma.$transaction(async (tx) => {
+      // Delete related transactions first
+      await tx.transaction.deleteMany({ where: { userId, projectId: { in: ids } } });
+      // Then delete the projects
+      return tx.project.deleteMany({ where: { id: { in: ids }, userId } });
+    });
     revalidatePath("/projects");
     revalidatePath("/dashboard");
     return { data: serializeBigInt(res), error: null } as const;
@@ -75,7 +80,12 @@ export async function deleteProjects(userId: string, ids: string[]) {
 // Delete one
 export async function deleteProject(userId: string, id: string) {
   try {
-    const res = await prisma.project.delete({ where: { id, userId } });
+    const [_, res] = await prisma.$transaction([
+      // Delete related transactions first
+      prisma.transaction.deleteMany({ where: { userId, projectId: id } }),
+      // Then delete the project
+      prisma.project.delete({ where: { id, userId } }),
+    ]);
     revalidatePath("/projects");
     revalidatePath("/dashboard");
     return { data: serializeBigInt(res), error: null } as const;

@@ -143,22 +143,22 @@ export function AddProjectRevenueModal({ projectId, isOpen, onClose }: AddProjec
 				        }))}
 			        />
 
-			        <FormField
-				        label="Trạng thái thanh toán"
-				        name="status"
-				        type="select"
-				        value={values.status}
-				        onChange={(value) => setValue('status', value)}
-				        onBlur={() => setTouched('status')}
-				        error={errors.status}
-				        touched={touched.status}
-				        required
-				        options={[
-					        { value: 'received', label: '✅ Đã nhận' },
-					        { value: 'pending', label: '⏳ Chờ thanh toán' },
-					        { value: 'overdue', label: '⚠️ Quá hạn' }
-				        ]}
-			        />
+			        {/*<FormField*/}
+				      {/*  label="Trạng thái thanh toán"*/}
+				      {/*  name="status"*/}
+				      {/*  type="select"*/}
+				      {/*  value={values.status}*/}
+				      {/*  onChange={(value) => setValue('status', value)}*/}
+				      {/*  onBlur={() => setTouched('status')}*/}
+				      {/*  error={errors.status}*/}
+				      {/*  touched={touched.status}*/}
+				      {/*  required*/}
+				      {/*  options={[*/}
+					    {/*    { value: 'received', label: '✅ Đã nhận' },*/}
+					    {/*    { value: 'pending', label: '⏳ Chờ thanh toán' },*/}
+					    {/*    { value: 'overdue', label: '⚠️ Quá hạn' }*/}
+				      {/*  ]}*/}
+			        {/*/>*/}
 
 			        {/* Paid Amount */}
 			        {values.status !== 'received' && (

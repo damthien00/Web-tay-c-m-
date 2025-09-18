@@ -20,7 +20,7 @@ const SavingsGoalContext = createContext<SavingsGoalContextType | undefined>(und
 export function SavingsGoalProvider({ children }: { children: ReactNode }) {
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
   const session = useSession();
-	const { addTransaction } = useTransactions();
+	const { reloadRecentTransactions } = useTransactions();
 
   // Helper to fetch and set goals from API
   const reloadGoals = async () => {
@@ -177,23 +177,11 @@ export function SavingsGoalProvider({ children }: { children: ReactNode }) {
 		  });
 		  const json = await res.json();
 		  if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to add contribution');
-		  await reloadGoals();
+		  await Promise.all([reloadGoals(), reloadRecentTransactions()]);
 	  } catch (e) {
 		  console.error(e);
 		  await reloadGoals();
 	  }
-
-    // Dispatch event for transaction integration (still handled by hook)
-    const goal = goals.find(g => g.id === id);
-    if (goal) {
-	    await addTransaction({
-		    type: 'expense',
-		    amount: amount,
-		    category: 'tien-le-tet', // Using this as savings allocation category
-		    description: `Tiết kiệm: ${goal?.title}`,
-		    paymentMethod: 'chuyen-khoan',
-	    });
-    }
   };
 
   const getTotalSavings = () => {

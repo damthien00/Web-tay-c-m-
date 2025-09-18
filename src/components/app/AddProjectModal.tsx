@@ -228,21 +228,21 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
 				      </div>
 
 				      {/* Currency */}
-				      <FormField
-					      label="Đơn vị tiền tệ"
-					      name="currency"
-					      type="select"
-					      value={values.currency}
-					      onChange={(value) => setValue('currency', value)}
-					      onBlur={() => setTouched('currency')}
-					      error={errors.currency}
-					      touched={touched.currency}
-					      required
-					      options={[
-						      { value: 'VND', label: '🇻🇳 Việt Nam Đồng (₫)' },
-						      { value: 'USD', label: '🇺🇸 US Dollar ($)' }
-					      ]}
-				      />
+				      {/*<FormField*/}
+					    {/*  label="Đơn vị tiền tệ"*/}
+					    {/*  name="currency"*/}
+					    {/*  type="select"*/}
+					    {/*  value={values.currency}*/}
+					    {/*  onChange={(value) => setValue('currency', value)}*/}
+					    {/*  onBlur={() => setTouched('currency')}*/}
+					    {/*  error={errors.currency}*/}
+					    {/*  touched={touched.currency}*/}
+					    {/*  required*/}
+					    {/*  options={[*/}
+						  {/*    { value: 'VND', label: '🇻🇳 Việt Nam Đồng (₫)' },*/}
+						  {/*    { value: 'USD', label: '🇺🇸 US Dollar ($)' }*/}
+					    {/*  ]}*/}
+				      {/*/>*/}
 
 				      {/* Submit Button */}
 				      <div className="flex space-x-3">

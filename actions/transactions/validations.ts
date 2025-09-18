@@ -36,6 +36,7 @@ export const transactionCreateSchema = z.object({
   location: z.string().optional(),
   tags: z.array(z.string()).default([]),
   projectId: z.string().refine(isMongoId).optional(),
+  goalId: z.string().refine(isMongoId).optional(),
 });
 export type TTransactionCreateSchema = z.infer<typeof transactionCreateSchema>;
 

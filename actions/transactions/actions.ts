@@ -26,9 +26,11 @@ export async function createTransaction(
         location: inputs.location,
         tags: inputs.tags ?? [],
         projectId: inputs.projectId ?? undefined,
+        goalId: inputs.goalId ?? undefined,
       },
       include: {
         project: { select: { id: true, name: true } },
+        goal: { select: { id: true, title: true } },
       },
     });
     revalidatePath("/transactions");

@@ -31,13 +31,13 @@ model User {
   accounts      Account[]
 
   // Back-relations for Money Tracker domain
-  profile               Profile?
-  transactions          Transaction[]
-  savingsGoals          SavingsGoal[]
-  projects              Project[]
-  projectExpenses       ProjectExpense[]
-  projectRevenues       ProjectRevenue[]
-  savingsContributions  SavingsContribution[]
+  profile              Profile?
+  transactions         Transaction[]
+  savingsGoals         SavingsGoal[]
+  projects             Project[]
+  projectExpenses      ProjectExpense[]
+  projectRevenues      ProjectRevenue[]
+  savingsContributions SavingsContribution[]
 
   @@unique([email])
   @@map("user")
@@ -121,7 +121,6 @@ model Media {
   updatedAt DateTime @updatedAt
 }
 
-
 // ---------------------------
 // Money Tracker (MongoDB) Models
 // ---------------------------
@@ -144,7 +143,7 @@ enum Currency {
 
 model Profile {
   // 1:1 with User, primary key equals User.id
-  id         String   @id @map("_id")
+  id         String    @id @map("_id")
   fullName   String
   email      String
   phone      String?
@@ -152,8 +151,8 @@ model Profile {
   occupation String?
   birthDate  DateTime?
   avatarUrl  String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   // relation to User by same id (User.id is String)
   user User @relation(fields: [id], references: [id], onDelete: Cascade)
@@ -172,6 +171,8 @@ model Transaction {
   paymentMethod String
   location      String?
   tags          String[]
+  goalId        String?         @db.ObjectId
+  goal          SavingsGoal?    @relation(fields: [goalId], references: [id])
   projectId     String?         @db.ObjectId
   project       Project?        @relation(fields: [projectId], references: [id])
   createdAt     DateTime        @default(now())
@@ -199,33 +200,48 @@ model SavingsGoal {
 
   // Back-relation
   contributions SavingsContribution[]
+  transactions  Transaction[]
 
   @@index([userId])
   @@index([deadline])
   @@map("savings_goals")
 }
 
+model SavingsContribution {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  goalId      String      @db.ObjectId
+  goal        SavingsGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount      BigInt
+  description String?
+  createdAt   DateTime    @default(now())
+
+  @@index([goalId])
+  @@map("savings_contributions")
+}
+
 model Project {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
   userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   name          String
   description   String
   budget        BigInt
-  totalExpenses BigInt   @default(0)
-  totalRevenue  BigInt   @default(0)
+  totalExpenses BigInt    @default(0)
+  totalRevenue  BigInt    @default(0)
   status        String
   startDate     DateTime
   endDate       DateTime?
   category      String
-  currency      Currency @default(VND)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  currency      Currency  @default(VND)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   // Back-relations
-  transactions  Transaction[]
-  expenses      ProjectExpense[]
-  revenues      ProjectRevenue[]
+  transactions Transaction[]
+  expenses     ProjectExpense[]
+  revenues     ProjectRevenue[]
 
   @@index([userId])
   @@index([status])
@@ -266,18 +282,4 @@ model ProjectRevenue {
 
   @@index([projectId])
   @@map("project_revenues")
-}
-
-model SavingsContribution {
-  id          String       @id @default(auto()) @map("_id") @db.ObjectId
-  goalId      String       @db.ObjectId
-  goal        SavingsGoal  @relation(fields: [goalId], references: [id], onDelete: Cascade)
-  userId      String
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  amount      BigInt
-  description String?
-  createdAt   DateTime     @default(now())
-
-  @@index([goalId])
-  @@map("savings_contributions")
 }
