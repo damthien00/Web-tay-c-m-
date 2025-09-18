@@ -137,22 +137,22 @@ export function TransactionView() {
                             >
                               <Eye className="w-4 h-4" />
                             </button>
-                            {/*<button*/}
-                            {/*  onClick={() => setEditingTransaction(transaction)}*/}
-                            {/*  className="p-1 text-gray-400 hover:text-blue-600 rounded transition-colors"*/}
-                            {/*  title="Chỉnh sửa"*/}
-                            {/*>*/}
-                            {/*  <Edit3 className="w-4 h-4" />*/}
-                            {/*</button>*/}
-                            {/*<button*/}
-                            {/*  onClick={async () => {*/}
-                            {/*    try { await deleteTransaction(transaction.id); } catch (e) { console.error(e); }*/}
-                            {/*  }}*/}
-                            {/*  className="p-1 text-gray-400 hover:text-red-600 rounded transition-colors"*/}
-                            {/*  title="Xóa"*/}
-                            {/*>*/}
-                            {/*  <Trash2 className="w-4 h-4" />*/}
-                            {/*</button>*/}
+                            <button
+                              onClick={() => setEditingTransaction(transaction)}
+                              className="p-1 text-gray-400 hover:text-blue-600 rounded transition-colors"
+                              title="Chỉnh sửa"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={async () => {
+                                try { await deleteTransaction(transaction.id); } catch (e) { console.error(e); }
+                              }}
+                              className="p-1 text-gray-400 hover:text-red-600 rounded transition-colors"
+                              title="Xóa"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
                       </div>
