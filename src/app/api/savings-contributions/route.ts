@@ -5,7 +5,7 @@ import { createSavingsContribution } from "@/actions/savings-contributions/actio
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { userId, goalId, amount, description } = body || {};
+    const { userId, goalId, amount, description, title } = body || {};
 
     if (!userId) return NextResponse.json({ data: null, error: "Missing userId" }, { status: 400 });
     if (!goalId) return NextResponse.json({ data: null, error: "Missing goalId" }, { status: 400 });
@@ -25,6 +25,7 @@ export async function POST(request: Request) {
       goalId,
       amount: amountBI as any,
       description,
+      title,
     });
 
     const status = error ? 400 : 200;

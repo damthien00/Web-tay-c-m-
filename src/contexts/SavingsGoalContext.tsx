@@ -170,10 +170,11 @@ export function SavingsGoalProvider({ children }: { children: ReactNode }) {
 	  try {
 		  const uid = session.data?.user?.id as string | undefined;
 		  if (!uid) throw new Error('No userId available');
+			const goal = goals.find(g => g.id === id);
 		  const res = await fetch('/api/savings-contributions', {
 			  method: 'POST',
 			  headers: { 'Content-Type': 'application/json' },
-			  body: JSON.stringify({ userId: uid, goalId: id, amount }),
+			  body: JSON.stringify({ userId: uid, goalId: id, amount, title: goal?.title || 'New Contribution', description: `Contribution to ${goal?.title || 'a goal'}` }),
 		  });
 		  const json = await res.json();
 		  if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to add contribution');
