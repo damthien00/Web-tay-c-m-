@@ -15,7 +15,7 @@ function revalidateSavings() {
   revalidatePath("/dashboard");
 }
 
-async function recomputeGoalTotals(goalId: string) {
+export async function recomputeGoalTotals(goalId: string) {
   const agg = await prisma.savingsContribution.aggregate({
     where: { goalId },
     _sum: { amount: true },

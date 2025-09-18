@@ -9,6 +9,9 @@ import {
   TTransactionCreateSchema,
   TTransactionUpdateSchema,
 } from "./validations";
+import {recomputeProjectExpenseTotal} from "@/actions/project-expenses/actions";
+import {recomputeProjectRevenueTotal} from "@/actions/project-revenues/actions";
+import {recomputeGoalTotals} from "@/actions/savings-contributions/actions";
 
 // Helpers for recomputing aggregates used during cascades\nasync function recomputeProjectExpenseTotal(projectId: string) {\n  const agg = await prisma.projectExpense.aggregate({\n    where: { projectId },\n    _sum: { amount: true },\n  });\n  const total = (agg._sum.amount ?? 0n) as bigint;\n  await prisma.project.update({ where: { id: projectId }, data: { totalExpenses: total } });\n}\n\nasync function recomputeProjectRevenueTotal(projectId: string) {\n  const agg = await prisma.projectRevenue.aggregate({\n    where: { projectId },\n    _sum: { paidAmount: true },\n  });\n  const total = (agg._sum.paidAmount ?? 0n) as bigint;\n  await prisma.project.update({ where: { id: projectId }, data: { totalRevenue: total } });\n}\n\nasync function recomputeGoalTotals(goalId: string) {\n  const agg = await prisma.savingsContribution.aggregate({\n    where: { goalId },\n    _sum: { amount: true },\n  });\n  const total = (agg._sum.amount ?? 0n) as bigint;\n  const goal = await prisma.savingsGoal.update({ where: { id: goalId }, data: { currentAmount: total } });\n  const shouldBeCompleted = goal.currentAmount >= goal.targetAmount;\n  if (goal.isCompleted !== shouldBeCompleted) {\n    await prisma.savingsGoal.update({ where: { id: goalId }, data: { isCompleted: shouldBeCompleted } });\n  }\n}\n\n// Create
 export async function createTransaction(

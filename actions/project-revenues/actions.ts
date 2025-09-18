@@ -10,7 +10,7 @@ import {
 } from "./validations";
 import {createTransaction} from "@/actions/transactions/actions";
 
-async function recomputeProjectRevenueTotal(projectId: string) {
+export async function recomputeProjectRevenueTotal(projectId: string) {
   const agg = await prisma.projectRevenue.aggregate({
     where: { projectId },
     _sum: { paidAmount: true },
