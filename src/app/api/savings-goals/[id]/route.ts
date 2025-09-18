@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { deleteSavingsGoal, updateSavingsGoal } from "@/actions/savings-goals/actions";
 
 // PATCH /api/savings-goals/:id
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { userId, title, targetAmount, deadline, category, isCompleted } = body || {};
 
@@ -42,9 +42,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 }
 
 // DELETE /api/savings-goals/:id?userId=...
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
     if (!userId) return NextResponse.json({ data: null, error: "Missing userId" }, { status: 400 });

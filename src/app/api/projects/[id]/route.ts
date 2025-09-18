@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { deleteProject, updateProject } from "@/actions/projects/actions";
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { userId, name, description, budget, status, startDate, endDate, category, currency } = body || {};
     if (!userId) return NextResponse.json({ data: null, error: "Missing userId" }, { status: 400 });
@@ -42,9 +42,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
     if (!userId) return NextResponse.json({ data: null, error: "Missing userId" }, { status: 400 });

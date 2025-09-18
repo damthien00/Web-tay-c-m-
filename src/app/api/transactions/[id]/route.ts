@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { updateTransaction, deleteTransaction } from "@/actions/transactions/actions";
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = params.id;
+    const { id } = await params;
     if (!id) return NextResponse.json({ data: null, error: "Missing id" }, { status: 400 });
 
     const body = await request.json();
@@ -40,9 +40,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = params.id;
+    const { id } = await params;
     if (!id) return NextResponse.json({ data: null, error: "Missing id" }, { status: 400 });
 
     const { searchParams } = new URL(request.url);
