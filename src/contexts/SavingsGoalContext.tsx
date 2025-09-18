@@ -152,7 +152,7 @@ export function SavingsGoalProvider({ children }: { children: ReactNode }) {
         });
         const json = await res.json();
         if (!res.ok || json?.error) throw new Error(json?.error || 'Failed to delete savings goal');
-        await reloadGoals();
+	      await Promise.all([reloadGoals(), reloadRecentTransactions()]);
       } catch (e) {
         console.error(e);
         // Revert by reloading from server

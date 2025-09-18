@@ -73,7 +73,10 @@ export async function updateSavingsGoal(
 // Delete many
 export async function deleteSavingsGoals(userId: string, ids: string[]) {
   try {
-    const res = await prisma.savingsGoal.deleteMany({ where: { id: { in: ids }, userId } });
+	  const res = await prisma.$transaction(async (tx) => {
+		  await tx.transaction.deleteMany({ where: { userId, goalId: { in: ids } } });
+		  return tx.savingsGoal.deleteMany({ where: { id: { in: ids }, userId } });
+	  });
     revalidateSavings();
     return { data: serializeBigInt(res), error: null } as const;
   } catch (e) {
@@ -85,7 +88,10 @@ export async function deleteSavingsGoals(userId: string, ids: string[]) {
 // Delete one
 export async function deleteSavingsGoal(userId: string, id: string) {
   try {
-    const res = await prisma.savingsGoal.delete({ where: { id, userId } });
+	  const [_, res] = await prisma.$transaction([
+		  prisma.transaction.deleteMany({ where: { userId, goalId: id } }),
+		  prisma.savingsGoal.delete({ where: { id, userId } }),
+	  ]);
     revalidateSavings();
     return { data: serializeBigInt(res), error: null } as const;
   } catch (e) {
