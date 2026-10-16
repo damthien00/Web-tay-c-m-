@@ -5,6 +5,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
+
     if (!userId) return NextResponse.json({ data: null, error: "Missing userId" }, { status: 400 });
 
     const projectId = searchParams.get("projectId") || undefined;

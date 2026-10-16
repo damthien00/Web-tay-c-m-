@@ -5,6 +5,7 @@ import {ProfileButton} from "@/components/admin/layout/ProfileButton";
 
 const navItems = [
   { href: "/admin/posts", label: "Post Management" },
+  { href: "/admin/products", label: "Product Management" },
   { href: "/admin/post-categories", label: "Post Category Management" },
   { href: "/admin/media", label: "Media" },
   { href: "/admin/users", label: "User" },

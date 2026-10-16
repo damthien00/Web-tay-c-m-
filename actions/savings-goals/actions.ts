@@ -117,7 +117,6 @@ export async function getSavingsGoal(userId: string, id: string) {
 // List
 export async function listSavingsGoals(filters: TSearchSavingsGoalSchema) {
   const { userId, q, category, isCompleted, from, to, page, per_page, sort } = filters;
-
   const where: any = {
     userId,
     ...(category ? { category } : {}),

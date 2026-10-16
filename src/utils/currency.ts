@@ -66,3 +66,14 @@ export function formatInputPreview(input: string): string {
 export function formatCurrency(amount: number, compact: boolean = false): string {
   return formatVND(amount);
 }
+
+
+export const formatPrice = (price: number | null | undefined) => {
+    if (price == null) return "0 ₫";
+
+    return new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+        maximumFractionDigits: 0,
+    }).format(price);
+};

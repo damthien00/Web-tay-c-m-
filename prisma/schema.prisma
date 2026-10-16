@@ -292,3 +292,53 @@ model ProjectRevenue {
   @@index([projectId])
   @@map("project_revenues")
 }
+
+model Products {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  price       Int
+  oldPrice    Int?
+  image       String
+  images    String[] @default([])
+  rating      Float    @default(0)
+  sold        Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  description String  @default("")
+  @@map("products")
+}
+
+
+model Order {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String
+  items           OrderItem[]
+  subtotal        Float
+  shippingFee     Float       @default(0)
+  discount        Float       @default(0)
+  total           Float
+
+  // Thông tin người nhận
+  receiverName    String
+  receiverPhone   String
+
+  shippingAddress Json
+  paymentMethod   String
+  paymentStatus   String      @default("UNPAID")
+  status          String      @default("PENDING")
+  note            String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([status])
+}
+
+type OrderItem {
+  productId String
+  name      String
+  image     String?
+  price     Float
+  quantity  Int
+  subtotal  Float
+}
