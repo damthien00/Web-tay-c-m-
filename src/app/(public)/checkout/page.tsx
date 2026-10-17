@@ -180,7 +180,6 @@ export default function CheckoutPage() {
         updateCartQuantity(id, quantity);
     };
 
-    // Xóa sản phẩm khỏi Zustand
     const removeItem = (id: CartItem["id"]) => {
         removeCartProduct(id);
     };
